@@ -1,0 +1,153 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ApplicationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum BusinessType {
+  RETAILER
+  ONLINE_STORE
+  DISTRIBUTOR
+  OTHER
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  image       String?
+  sortOrder   Int       @default(0)
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Product {
+  id                  String         @id @default(cuid())
+  name                String
+  slug                String         @unique
+  description         String?
+  price               Float
+  wholesalePrice      Float?
+  categoryId          String
+  category            Category       @relation(fields: [categoryId], references: [id])
+  sizes               String[]       // e.g. ["S", "M", "L", "XL", "2XL"]
+  colors              String[]       // e.g. ["Black", "White", "Navy"]
+  colorHexCodes       String[]       // e.g. ["#000000", "#FFFFFF", "#1B2A4A"]
+  fabricWeight        String?        // e.g. "6.5 oz"
+  fabricMaterial      String?        // e.g. "100% Cotton"
+  images              String[]
+  featured            Boolean        @default(false)
+  active              Boolean        @default(true)
+  // Integration IDs
+  shopifyProductId    String?
+  shopifyVariantId    String?
+  apparelMagicId      String?
+  // Collab relation
+  collabId            String?
+  collab              Collab?        @relation(fields: [collabId], references: [id])
+  orderItems          OrderItem[]
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+}
+
+model WholesaleApplication {
+  id            String            @id @default(cuid())
+  businessName  String
+  contactName   String
+  email         String
+  phone         String
+  einNumber     String
+  resaleNumber  String
+  address       String?
+  businessType  BusinessType      @default(OTHER)
+  heardAbout    String?
+  notes         String?
+  status        ApplicationStatus @default(PENDING)
+  reviewNotes   String?
+  signupToken   String?           @unique
+  account       WholesaleAccount?
+  createdAt     DateTime          @default(now())
+  reviewedAt    DateTime?
+  updatedAt     DateTime          @updatedAt
+}
+
+model WholesaleAccount {
+  id                    String               @id @default(cuid())
+  email                 String               @unique
+  passwordHash          String
+  businessName          String
+  applicationId         String               @unique
+  application           WholesaleApplication @relation(fields: [applicationId], references: [id])
+  active                Boolean              @default(true)
+  // Integration IDs
+  apparelMagicCustomerId String?
+  orders                Order[]
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+}
+
+model Collab {
+  id          String    @id @default(cuid())
+  brandName   String
+  slug        String    @unique
+  description String?
+  logo        String?
+  coverImage  String?
+  featured    Boolean   @default(false)
+  active      Boolean   @default(true)
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Order {
+  id          String           @id @default(cuid())
+  accountId   String
+  account     WholesaleAccount @relation(fields: [accountId], references: [id])
+  items       OrderItem[]
+  total       Float
+  status      OrderStatus      @default(PENDING)
+  notes       String?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  size      String
+  color     String
+  quantity  Int
+  price     Float
+}
+
+model ContactSubmission {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String?
+  message   String
+  createdAt DateTime @default(now())
+}

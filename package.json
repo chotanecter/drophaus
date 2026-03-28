@@ -1,0 +1,43 @@
+{
+  "name": "drophaus",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "lint": "next lint",
+    "seed": "npx tsx prisma/seed.ts"
+  },
+  "prisma": {
+    "seed": "npx tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.2",
+    "@prisma/adapter-neon": "^7.4.2",
+    "@prisma/adapter-pg": "^7.4.2",
+    "@prisma/client": "^7.4.2",
+    "bcryptjs": "^3.0.3",
+    "next": "14.2.35",
+    "pg": "^8.20.0",
+    "prisma": "^7.4.2",
+    "react": "^18",
+    "react-dom": "^18",
+    "uuid": "^13.0.0",
+    "ws": "^8.19.0"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "@types/uuid": "^10.0.0",
+    "dotenv": "^17.3.1",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.35",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5"
+  }
+}

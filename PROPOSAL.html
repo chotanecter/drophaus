@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Drop Haus — Web Services Proposal</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="/dev/null" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Drop Haus — Web Services Proposal</h1>
+</header>
+<h1 id="web-development-hosting-services-proposal">Web Development &amp;
+Hosting Services Proposal</h1>
+<p><strong>Prepared for:</strong> Drop Haus<br />
+<strong>Prepared by:</strong> Matthew Cho<br />
+<strong>Date:</strong> March 7, 2026<br />
+<strong>Proposal Reference:</strong> DH-2026-001</p>
+<hr />
+<h2 id="executive-summary">Executive Summary</h2>
+<p>This proposal outlines the web development and hosting services
+delivered for Drop Haus, a premium blank apparel manufacturer. The
+platform has been designed and built to serve as the company’s primary
+digital presence, wholesale customer acquisition system, and brand
+collaboration showcase.</p>
+<hr />
+<h2 id="scope-of-work-delivered">Scope of Work Delivered</h2>
+<h3 id="public-facing-website">1. Public-Facing Website</h3>
+<p>A fully custom-built website featuring:</p>
+<ul>
+<li><strong>Home Page</strong> — Brand hero section, product category
+navigation, feature highlights, and call-to-action sections</li>
+<li><strong>Product Catalog</strong> — Filterable product catalog by
+category (T-Shirts, Hoodies, Sweats, Jackets) with individual product
+detail pages featuring size selection, color swatches, fabric
+specifications, and pricing</li>
+<li><strong>Collaborations Page</strong> — Dedicated showcase for brand
+partnerships and collaborative collections with individual collection
+pages</li>
+<li><strong>About Page</strong> — Company story, manufacturing process,
+and brand values</li>
+<li><strong>Contact Page</strong> — Contact form with database-stored
+submissions</li>
+</ul>
+<h3 id="wholesale-verification-onboarding-system">2. Wholesale
+Verification &amp; Onboarding System</h3>
+<p>A complete wholesale customer acquisition pipeline:</p>
+<ul>
+<li><p><strong>Wholesale Application Form</strong> — Public-facing form
+collecting:</p>
+<ul>
+<li>Business Name</li>
+<li>Business Type (Retailer, Online Store, Distributor, Other)</li>
+<li>EIN Number</li>
+<li>Resale Certificate Number</li>
+<li>Contact Name, Email, and Phone Number</li>
+<li>Business Address</li>
+<li>Additional details and notes</li>
+</ul></li>
+<li><p><strong>Application Review Dashboard</strong> — Admin panel for
+Drop Haus to:</p>
+<ul>
+<li>View all incoming wholesale applications</li>
+<li>Filter by status (Pending, Approved, Rejected)</li>
+<li>Search by business name or contact info</li>
+<li>Review full application details</li>
+<li>Approve or reject with internal notes</li>
+<li>Generate unique account creation links upon approval</li>
+</ul></li>
+<li><p><strong>Wholesale Account Creation</strong> — Approved applicants
+receive a secure signup link to create their wholesale portal
+account</p></li>
+<li><p><strong>Wholesale Portal</strong> — Authenticated access for
+approved accounts to view wholesale pricing and bulk pricing
+tiers</p></li>
+</ul>
+<h3 id="administration-dashboard">3. Administration Dashboard</h3>
+<p>A protected admin panel accessible at a secure URL, featuring:</p>
+<ul>
+<li><strong>Applications Management</strong> — Full CRUD and review
+workflow</li>
+<li><strong>Products Management</strong> — Product catalog
+administration</li>
+<li><strong>Collaborations Management</strong> — Brand partnership
+administration</li>
+<li><strong>Accounts Management</strong> — Wholesale account
+oversight</li>
+</ul>
+<h3 id="integration-architecture">4. Integration Architecture</h3>
+<p>The platform has been built with integration-ready architecture
+for:</p>
+<ul>
+<li><strong>Shopify</strong> — Service layer prepared for product
+synchronization, checkout/payment processing, and order management via
+Shopify Storefront and Admin APIs</li>
+<li><strong>ApparelMagic</strong> — Service layer prepared for ERP
+integration including inventory synchronization, order fulfillment,
+customer CRM sync, and production tracking</li>
+</ul>
+<h3 id="technical-specifications">5. Technical Specifications</h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Technology</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Framework</td>
+<td>Next.js 14 (React)</td>
+</tr>
+<tr>
+<td>Language</td>
+<td>TypeScript</td>
+</tr>
+<tr>
+<td>Styling</td>
+<td>Tailwind CSS</td>
+</tr>
+<tr>
+<td>Database</td>
+<td>PostgreSQL (Neon)</td>
+</tr>
+<tr>
+<td>ORM</td>
+<td>Prisma 7</td>
+</tr>
+<tr>
+<td>Hosting</td>
+<td>Vercel</td>
+</tr>
+<tr>
+<td>Authentication</td>
+<td>Token-based (wholesale portal)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="hosting-maintenance-agreement">Hosting &amp; Maintenance
+Agreement</h2>
+<h3 id="term">Term</h3>
+<p>This agreement covers a period of <strong>one (1) year</strong> from
+the date of execution, beginning on the date both parties sign this
+agreement.</p>
+<h3 id="hosting-services-include">Hosting Services Include:</h3>
+<ul>
+<li>Website hosting on Vercel’s global edge network</li>
+<li>PostgreSQL database hosting via Neon</li>
+<li>SSL certificate (HTTPS) management</li>
+<li>Uptime monitoring</li>
+<li>Domain configuration and DNS management (domain registration costs,
+if any, are separate)</li>
+<li>Routine security updates and dependency maintenance</li>
+</ul>
+<h3 id="renewal-renegotiation">Renewal &amp; Renegotiation</h3>
+<p>Upon expiration of the initial one (1) year term, either party may
+propose revised terms for continued hosting and maintenance services.
+Both parties agree to enter renegotiation in good faith no later than
+thirty (30) days prior to the expiration of the current term. If no new
+agreement is reached, services will continue on a month-to-month basis
+under the existing terms until a new agreement is executed or services
+are terminated with thirty (30) days written notice.</p>
+<hr />
+<h2 id="design-finalization-change-policy">Design Finalization &amp;
+Change Policy</h2>
+<h3 id="design-approval-process">Design Approval Process</h3>
+<p>Upon delivery, Drop Haus will have a review period to request
+revisions and adjustments to the website design. Both parties will work
+collaboratively to reach a finalized design that meets Drop Haus’s
+satisfaction.</p>
+<h3 id="post-finalization-changes">Post-Finalization Changes</h3>
+<p>Once both parties agree in writing (email confirmation is sufficient)
+that the website design is finalized:</p>
+<ul>
+<li><strong>Any subsequent design changes, feature additions, or
+modifications</strong> to the website will be subject to a
+<strong>$250.00 USD fee per change request</strong>.</li>
+<li>A “change request” is defined as any modification to the website’s
+layout, functionality, content structure, or styling that requires
+development work.</li>
+<li>Minor content updates (e.g., updating text, swapping product images,
+adding/removing products through the existing admin panel) are
+<strong>not</strong> considered change requests and can be performed by
+Drop Haus at no additional cost through the admin dashboard.</li>
+<li>Each change request will be scoped and confirmed before work
+begins.</li>
+</ul>
+<hr />
+<h2 id="intellectual-property-ownership">Intellectual Property &amp;
+Ownership</h2>
+<h3 id="full-ownership-transfer">Full Ownership Transfer</h3>
+<p>Upon execution of this agreement, <strong>Drop Haus shall own the
+entirety of the system</strong>, including but not limited to:</p>
+<ul>
+<li>All source code, frontend and backend</li>
+<li>Database schema and structure</li>
+<li>Design assets, layouts, and styling</li>
+<li>API integrations and service architecture</li>
+<li>All documentation</li>
+</ul>
+<p>Drop Haus will have full rights to modify, redistribute, or transfer
+the codebase at their discretion. A complete copy of the codebase and
+all credentials will be provided to Drop Haus upon request.</p>
+<h3 id="exclusions">Exclusions</h3>
+<p>The following are not included in the ownership transfer: -
+Third-party service accounts (Vercel, Neon, Shopify, ApparelMagic) —
+these remain under whatever account holds them and can be transferred to
+Drop Haus-owned accounts upon request - Open-source libraries and
+frameworks used in the project, which remain under their respective
+licenses</p>
+<hr />
+<h2 id="acceptance">Acceptance</h2>
+<p>By signing below, both parties agree to the terms outlined in this
+proposal.</p>
+<p> </p>
+<p><strong>Drop Haus</strong></p>
+<table>
+<tbody>
+<tr>
+<td>Signature:</td>
+<td>________________________________________</td>
+</tr>
+<tr>
+<td>Name:</td>
+<td>________________________________________</td>
+</tr>
+<tr>
+<td>Title:</td>
+<td>________________________________________</td>
+</tr>
+<tr>
+<td>Date:</td>
+<td>________________________________________</td>
+</tr>
+</tbody>
+</table>
+<p> </p>
+<p><strong>Matthew Cho</strong></p>
+<table>
+<tbody>
+<tr>
+<td>Signature:</td>
+<td>________________________________________</td>
+</tr>
+<tr>
+<td>Name:</td>
+<td>Matthew Cho</td>
+</tr>
+<tr>
+<td>Date:</td>
+<td>________________________________________</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>This proposal is valid for thirty (30) days from the date of
+preparation.</em></p>
+</body>
+</html>

@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Drop Haus — Web Development & Hosting Services Proposal</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    color: #1a1a1a;
+    line-height: 1.7;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 60px 40px;
+    font-size: 14px;
+  }
+  
+  h1 {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+    border-bottom: 3px solid #B87333;
+    padding-bottom: 12px;
+  }
+  
+  h2 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-top: 36px;
+    margin-bottom: 12px;
+    letter-spacing: -0.3px;
+  }
+  
+  h3 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-top: 24px;
+    margin-bottom: 8px;
+  }
+
+  h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 16px;
+    margin-bottom: 6px;
+    color: #444;
+  }
+  
+  p { margin-bottom: 10px; }
+  
+  ul, ol {
+    margin-bottom: 12px;
+    padding-left: 24px;
+  }
+  
+  li { margin-bottom: 4px; }
+  
+  strong { font-weight: 600; }
+  
+  hr {
+    border: none;
+    border-top: 1px solid #e5e5e5;
+    margin: 32px 0;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+  
+  th, td {
+    padding: 8px 12px;
+    text-align: left;
+    border: 1px solid #e5e5e5;
+  }
+  
+  th {
+    background: #f5f5f5;
+    font-weight: 600;
+  }
+  
+  .meta {
+    color: #666;
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+  
+  .header-block {
+    margin-bottom: 32px;
+  }
+  
+  .sig-block {
+    margin-top: 40px;
+    page-break-inside: avoid;
+  }
+  
+  .sig-line {
+    border-bottom: 1px solid #333;
+    width: 300px;
+    display: inline-block;
+    margin-left: 8px;
+  }
+  
+  .sig-row {
+    display: flex;
+    align-items: baseline;
+    margin-bottom: 20px;
+    font-size: 13px;
+  }
+  
+  .sig-label {
+    width: 80px;
+    font-weight: 500;
+  }
+  
+  .footer-note {
+    margin-top: 48px;
+    font-size: 12px;
+    color: #999;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<div class="header-block">
+  <h1>Web Development & Hosting Services Proposal</h1>
+  <p class="meta"><strong>Prepared for:</strong> Drop Haus</p>
+  <p class="meta"><strong>Prepared by:</strong> Matthew Cho</p>
+  <p class="meta"><strong>Date:</strong> March 7, 2026</p>
+  <p class="meta"><strong>Reference:</strong> DH-2026-001</p>
+</div>
+
+<hr>
+
+<h2>Executive Summary</h2>
+<p>This proposal outlines the web development and hosting services delivered for Drop Haus, a premium blank apparel manufacturer. The platform has been designed and built to serve as the company's primary digital presence, wholesale customer acquisition system, and brand collaboration showcase.</p>
+
+<hr>
+
+<h2>Scope of Work Delivered</h2>
+
+<h3>1. Public-Facing Website</h3>
+<p>A fully custom-built website featuring:</p>
+<ul>
+  <li><strong>Home Page</strong> — Brand hero section, product category navigation, feature highlights, and call-to-action sections</li>
+  <li><strong>Product Catalog</strong> — Filterable product catalog by category (T-Shirts, Hoodies, Sweats, Jackets) with individual product detail pages featuring size selection, color swatches, fabric specifications, and pricing</li>
+  <li><strong>Collaborations Page</strong> — Dedicated showcase for brand partnerships and collaborative collections with individual collection pages</li>
+  <li><strong>About Page</strong> — Company story, manufacturing process, and brand values</li>
+  <li><strong>Contact Page</strong> — Contact form with database-stored submissions</li>
+</ul>
+
+<h3>2. Wholesale Verification & Onboarding System</h3>
+<p>A complete wholesale customer acquisition pipeline:</p>
+
+<p><strong>Wholesale Application Form</strong> — Public-facing form collecting:</p>
+<ul>
+  <li>Business Name & Business Type (Retailer, Online Store, Distributor, Other)</li>
+  <li>EIN Number & Resale Certificate Number</li>
+  <li>Contact Name, Email, and Phone Number</li>
+  <li>Business Address & Additional Details</li>
+</ul>
+
+<p><strong>Application Review Dashboard</strong> — Admin panel for Drop Haus to:</p>
+<ul>
+  <li>View, filter, and search all incoming wholesale applications</li>
+  <li>Review full application details and approve or reject with internal notes</li>
+  <li>Generate unique account creation links upon approval</li>
+</ul>
+
+<p><strong>Wholesale Portal</strong> — Authenticated access for approved wholesale accounts to view wholesale pricing and bulk pricing tiers</p>
+
+<h3>3. Administration Dashboard</h3>
+<p>A protected admin panel featuring applications management, products management, collaborations management, and wholesale accounts oversight.</p>
+
+<h3>4. Integration Architecture</h3>
+<p>The platform has been built with integration-ready architecture for:</p>
+<ul>
+  <li><strong>Shopify</strong> — Service layer prepared for product synchronization, checkout/payment processing, and order management</li>
+  <li><strong>ApparelMagic</strong> — Service layer prepared for ERP integration including inventory sync, order fulfillment, customer CRM, and production tracking</li>
+</ul>
+
+<h3>5. Technical Specifications</h3>
+<table>
+  <tr><th>Component</th><th>Technology</th></tr>
+  <tr><td>Framework</td><td>Next.js 14 (React)</td></tr>
+  <tr><td>Language</td><td>TypeScript</td></tr>
+  <tr><td>Styling</td><td>Tailwind CSS</td></tr>
+  <tr><td>Database</td><td>PostgreSQL (Neon)</td></tr>
+  <tr><td>ORM</td><td>Prisma 7</td></tr>
+  <tr><td>Hosting</td><td>Vercel</td></tr>
+</table>
+
+<hr>
+
+<h2>Pricing</h2>
+
+<h3>Website Development</h3>
+<table>
+  <tr><th>Item</th><th style="text-align:right">Amount</th></tr>
+  <tr><td>Custom website design &amp; development (full scope as described above)</td><td style="text-align:right"><strong>$3,500.00</strong></td></tr>
+</table>
+<p><strong>Payment Terms:</strong> Full payment due upfront prior to the transfer of code, credentials, and deployment access.</p>
+
+<h3>Monthly Maintenance & Support Package</h3>
+<table>
+  <tr><th>Item</th><th>Details</th><th style="text-align:right">Cost</th></tr>
+  <tr><td><strong>Managed Hosting & Maintenance</strong></td><td>Comprehensive platform management, ongoing support, and collaboration site development (details below)</td><td style="text-align:right"><strong>$1,250.00/month</strong></td></tr>
+</table>
+
+<h4>Infrastructure & Hosting</h4>
+<ul>
+  <li>Website hosting on Vercel's global edge network</li>
+  <li>PostgreSQL database hosting and management via Neon</li>
+  <li>SSL certificate (HTTPS) management and renewal</li>
+  <li>Domain configuration and DNS management (domain registration costs, if any, are separate)</li>
+  <li>Uptime monitoring and incident response</li>
+</ul>
+
+<h4>Maintenance & Updates</h4>
+<ul>
+  <li>Routine security updates and dependency patching (monthly)</li>
+  <li>Performance monitoring and optimization</li>
+  <li>Database backups and maintenance</li>
+  <li>Bug fixes and troubleshooting for existing features</li>
+  <li>Browser and device compatibility updates as needed</li>
+</ul>
+
+<h4>Content & Platform Support</h4>
+<ul>
+  <li>Assistance with product catalog updates and content changes</li>
+  <li>Admin panel support and training as needed</li>
+  <li>Analytics review and reporting (monthly summary)</li>
+</ul>
+
+<h4>Collaboration Website Development</h4>
+<ul>
+  <li>Design and development of <strong>up to one (1) collaboration website per month</strong> for Drop Haus brand partnerships</li>
+  <li>Each collaboration site includes a custom landing page, product showcase, and branding tailored to the partnership</li>
+  <li>Collaboration sites are hosted and maintained under the same infrastructure at no additional hosting cost</li>
+  <li>Additional collaboration sites beyond the monthly allotment may be requested at a rate of <strong>$500.00 per site</strong></li>
+</ul>
+
+<h4>Support & Communication</h4>
+<ul>
+  <li>Priority email and messaging support during business hours (Mon–Fri, 9 AM – 6 PM PST)</li>
+  <li>Response within 24 hours for standard requests</li>
+  <li>Response within 4 hours for critical issues (site down, security concerns)</li>
+</ul>
+
+<h3>Media Content (Optional)</h3>
+<p>The development fee covers the design and build of the website only. The website currently uses placeholder imagery. For a launch-ready site, professional media content is recommended:</p>
+<table>
+  <tr><th>Item</th><th>Includes</th><th style="text-align:right">Amount</th></tr>
+  <tr><td><strong>Media Content Package</strong></td><td>Professional product photography, lifestyle imagery, and video content for the website — covering hero sections, product catalog, about page, and collaboration showcases</td><td style="text-align:right"><strong>$2,500.00</strong></td></tr>
+</table>
+<p>This is an optional add-on. Drop Haus may alternatively provide their own media assets for integration into the website at no additional cost.</p>
+
+<hr>
+
+<h2>Maintenance & Support Agreement</h2>
+
+<h3>Term</h3>
+<p>This agreement covers a period of <strong>one (1) year</strong> from the date of execution, beginning on the date both parties sign this agreement. The monthly maintenance fee of <strong>$1,250.00</strong> is billed on the first of each month.</p>
+
+<h3>What's Not Included</h3>
+<p>The following are outside the scope of the monthly maintenance package and will be quoted separately:</p>
+<ul>
+  <li>Major feature development or platform redesigns</li>
+  <li>Third-party integration implementation (Shopify, ApparelMagic) beyond the prepared architecture</li>
+  <li>Third-party service subscription fees (Shopify plans, ApparelMagic licenses, etc.)</li>
+  <li>Domain registration or renewal fees</li>
+  <li>Professional photography, videography, or media production</li>
+  <li>Collaboration sites beyond the one (1) per month allotment ($500.00 per additional site)</li>
+</ul>
+
+<h3>Renewal & Renegotiation</h3>
+<p>Upon expiration of the initial one (1) year term, either party may propose revised terms for continued maintenance services. Both parties agree to enter renegotiation in good faith no later than thirty (30) days prior to the expiration of the current term. If no new agreement is reached, services will continue on a month-to-month basis under the existing terms until a new agreement is executed or services are terminated with thirty (30) days written notice.</p>
+
+<hr>
+
+<h2>Design Finalization & Change Policy</h2>
+
+<h3>Design Approval Process</h3>
+<p>Upon delivery, Drop Haus will have a review period to request revisions and adjustments to the website design. Both parties will work collaboratively to reach a finalized design that meets Drop Haus's satisfaction.</p>
+
+<h3>Post-Finalization Changes</h3>
+<p>Once both parties agree in writing (email confirmation is sufficient) that the website design is finalized:</p>
+<ul>
+  <li><strong>Any subsequent design changes, feature additions, or modifications</strong> to the website will be subject to a <strong>$250.00 USD fee per change request.</strong></li>
+  <li>A "change request" is defined as any modification to the website's layout, functionality, content structure, or styling that requires development work.</li>
+  <li>Minor content updates (e.g., updating text, swapping product images, adding/removing products through the existing admin panel) are <strong>not</strong> considered change requests and can be performed by Drop Haus at no additional cost through the admin dashboard.</li>
+  <li>Each change request will be scoped and confirmed before work begins.</li>
+</ul>
+
+<hr>
+
+<h2>Intellectual Property & Ownership</h2>
+
+<h3>Full Ownership Transfer</h3>
+<p>Upon execution of this agreement, <strong>Drop Haus shall own the entirety of the system</strong>, including but not limited to:</p>
+<ul>
+  <li>All source code, frontend and backend</li>
+  <li>Database schema and structure</li>
+  <li>Design assets, layouts, and styling</li>
+  <li>API integrations and service architecture</li>
+  <li>All documentation</li>
+</ul>
+<p>Drop Haus will have full rights to modify, redistribute, or transfer the codebase at their discretion. A complete copy of the codebase and all credentials will be provided to Drop Haus upon request.</p>
+
+<h3>Exclusions</h3>
+<p>The following are not included in the ownership transfer:</p>
+<ul>
+  <li>Third-party service accounts (Vercel, Neon, Shopify, ApparelMagic) — these remain under whatever account holds them and can be transferred to Drop Haus-owned accounts upon request</li>
+  <li>Open-source libraries and frameworks used in the project, which remain under their respective licenses</li>
+</ul>
+
+<hr>
+
+<h2>Acceptance</h2>
+<p>By signing below, both parties agree to the terms outlined in this proposal.</p>
+
+<div class="sig-block">
+  <h3>Drop Haus</h3>
+  <div class="sig-row"><span class="sig-label">Signature:</span> <span class="sig-line">&nbsp;</span></div>
+  <div class="sig-row"><span class="sig-label">Name:</span> <span class="sig-line">&nbsp;</span></div>
+  <div class="sig-row"><span class="sig-label">Title:</span> <span class="sig-line">&nbsp;</span></div>
+  <div class="sig-row"><span class="sig-label">Date:</span> <span class="sig-line">&nbsp;</span></div>
+</div>
+
+<div class="sig-block">
+  <h3>Matthew Cho</h3>
+  <div class="sig-row"><span class="sig-label">Signature:</span> <span class="sig-line">&nbsp;</span></div>
+  <div class="sig-row"><span class="sig-label">Name:</span> Matthew Cho</div>
+  <div class="sig-row"><span class="sig-label">Date:</span> <span class="sig-line">&nbsp;</span></div>
+</div>
+
+<p class="footer-note">This proposal is valid for thirty (30) days from the date of preparation.</p>
+
+</body>
+</html>
