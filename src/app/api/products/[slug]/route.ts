@@ -28,6 +28,16 @@ export async function PUT(
   }
 
   const body = await req.json()
+
+  // Resolve categorySlug to categoryId if provided
+  if (body.categorySlug) {
+    const cat = await prisma.category.findUnique({ where: { slug: body.categorySlug } })
+    if (cat) {
+      body.categoryId = cat.id
+    }
+    delete body.categorySlug
+  }
+
   const product = await prisma.product.update({
     where: { slug: params.slug },
     data: body,

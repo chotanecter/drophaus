@@ -26,6 +26,7 @@ export default function ProductDetailPage() {
   const [loading, setLoading] = useState(true)
   const [selectedColor, setSelectedColor] = useState(0)
   const [selectedSize, setSelectedSize] = useState('')
+  const [showToast, setShowToast] = useState(false)
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -81,11 +82,28 @@ export default function ProductDetailPage() {
 
       <div className="grid md:grid-cols-2 gap-12">
         {/* Image */}
-        <div className="aspect-square bg-neutral-100 rounded-lg flex items-center justify-center">
+        <div className="aspect-square rounded-lg overflow-hidden">
           {product.images[0] ? (
             <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover rounded-lg" />
           ) : (
-            <span className="text-neutral-300 text-8xl">👕</span>
+            <div
+              className="w-full h-full flex flex-col items-center justify-center gap-3"
+              style={{
+                background: product.colorHexCodes[selectedColor]
+                  ? `linear-gradient(145deg, ${product.colorHexCodes[selectedColor]}ee, ${product.colorHexCodes[selectedColor]}99)`
+                  : 'linear-gradient(145deg, #e5e5e5, #d4d4d4)',
+              }}
+            >
+              <span className="text-white/60 text-sm font-semibold uppercase tracking-[0.2em] drop-shadow-sm">
+                {product.category?.name}
+              </span>
+              <span className="text-white/90 text-xl font-bold drop-shadow-sm text-center px-8">
+                {product.name}
+              </span>
+              <span className="text-white/40 text-xs uppercase tracking-widest mt-2">
+                {product.fabricWeight} · {product.fabricMaterial}
+              </span>
+            </div>
           )}
         </div>
 
@@ -146,14 +164,20 @@ export default function ProductDetailPage() {
           <button
             className="w-full bg-black text-white py-3.5 rounded-md font-semibold text-sm hover:bg-neutral-800 transition-colors mb-4"
             onClick={() => {
-              // TODO: Connect to Shopify Buy SDK
-              // import { createCheckout } from '@/lib/services/shopify'
-              // createCheckout([{ variantId: product.shopifyVariantId, quantity: 1 }])
-              alert('Coming soon — checkout powered by Shopify')
+              setShowToast(true)
+              setTimeout(() => setShowToast(false), 3000)
             }}
           >
             Add to Cart
           </button>
+
+          {/* Toast notification */}
+          {showToast && (
+            <div className="fixed bottom-6 right-6 bg-black text-white px-6 py-4 rounded-lg shadow-2xl z-50 animate-fade-in flex items-center gap-3">
+              <span className="text-accent font-medium">Coming Soon</span>
+              <span className="text-neutral-400 text-sm">Online checkout launching soon.</span>
+            </div>
+          )}
 
           <Link
             href="/wholesale"

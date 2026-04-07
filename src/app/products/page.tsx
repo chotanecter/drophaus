@@ -92,11 +92,22 @@ function ProductsContent() {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {products.map((product) => (
             <Link key={product.id} href={`/products/${product.slug}`} className="group">
-              <div className="aspect-square bg-neutral-100 rounded-lg mb-3 overflow-hidden group-hover:bg-neutral-200 transition-colors flex items-center justify-center">
+              <div className="aspect-square rounded-lg mb-3 overflow-hidden relative group-hover:shadow-md transition-all">
                 {product.images[0] ? (
                   <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
                 ) : (
-                  <span className="text-neutral-300 text-5xl">👕</span>
+                  <div
+                    className="w-full h-full flex flex-col items-center justify-center"
+                    style={{
+                      background: product.colorHexCodes[0]
+                        ? `linear-gradient(135deg, ${product.colorHexCodes[0]}ee, ${product.colorHexCodes[0]}88)`
+                        : 'linear-gradient(135deg, #e5e5e5, #d4d4d4)',
+                    }}
+                  >
+                    <span className="text-white/80 text-xs font-semibold uppercase tracking-widest drop-shadow-sm">
+                      {product.category?.name || 'Apparel'}
+                    </span>
+                  </div>
                 )}
               </div>
               <h3 className="font-medium text-sm group-hover:text-accent transition-colors">{product.name}</h3>

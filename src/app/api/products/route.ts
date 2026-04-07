@@ -18,11 +18,7 @@ export async function GET(req: NextRequest) {
     orderBy: { createdAt: 'desc' },
   })
 
-  // Strip wholesale prices from public API response
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const publicProducts = products.map(({ wholesalePrice, ...rest }: { wholesalePrice: number | null; [key: string]: unknown }) => rest)
-
-  return NextResponse.json(publicProducts)
+  return NextResponse.json(products)
 }
 
 export async function POST(req: NextRequest) {
@@ -32,6 +28,15 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json()
+
+  // Resolve categoryId from slug if not provided directly
+  let categoryId = body.categoryId
+  if (!categoryId && body.categorySlug) {
+    const cat = await prisma.category.findUnique({ where: { slug: body.categorySlug } })
+    if (!cat) return NextResponse.json({ error: 'Category not found' }, { status: 400 })
+    categoryId = cat.id
+  }
+
   const product = await prisma.product.create({
     data: {
       name: body.name,
@@ -39,7 +44,7 @@ export async function POST(req: NextRequest) {
       description: body.description,
       price: body.price,
       wholesalePrice: body.wholesalePrice,
-      categoryId: body.categoryId,
+      categoryId,
       sizes: body.sizes || [],
       colors: body.colors || [],
       colorHexCodes: body.colorHexCodes || [],

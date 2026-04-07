@@ -23,11 +23,27 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
   }
 
-  // Simple token-based auth (in production, use JWT or session)
-  // For now, return account ID as a simple auth token
-  return NextResponse.json({
+  // Create a simple session token (base64 encoded account info)
+  const sessionData = Buffer.from(JSON.stringify({
+    accountId: account.id,
+    businessName: account.businessName,
+    email: account.email,
+  })).toString('base64')
+
+  const response = NextResponse.json({
     success: true,
     accountId: account.id,
     businessName: account.businessName,
   })
+
+  // Set HTTP-only session cookie (7 day expiry)
+  response.cookies.set('dh_session', sessionData, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 60 * 60 * 24 * 7, // 7 days
+    path: '/',
+  })
+
+  return response
 }

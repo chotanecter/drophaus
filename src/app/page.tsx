@@ -1,10 +1,11 @@
 import Link from 'next/link'
+import { prisma } from '@/lib/prisma'
 
 const categories = [
-  { name: 'T-Shirts', slug: 'tees', color: 'from-neutral-800 to-neutral-600' },
-  { name: 'Hoodies', slug: 'hoodies', color: 'from-neutral-700 to-neutral-500' },
-  { name: 'Sweats', slug: 'sweats', color: 'from-neutral-600 to-neutral-400' },
-  { name: 'Jackets', slug: 'jackets', color: 'from-neutral-900 to-neutral-700' },
+  { name: 'T-Shirts', slug: 'tees', color: 'from-neutral-900 to-neutral-700', accent: '#1A1A1A' },
+  { name: 'Hoodies', slug: 'hoodies', color: 'from-stone-800 to-stone-600', accent: '#36454F' },
+  { name: 'Sweats', slug: 'sweats', color: 'from-zinc-700 to-zinc-500', accent: '#9E9E9E' },
+  { name: 'Jackets', slug: 'jackets', color: 'from-neutral-950 to-neutral-800', accent: '#1B2A4A' },
 ]
 
 const features = [
@@ -30,7 +31,15 @@ const features = [
   },
 ]
 
-export default function Home() {
+export const dynamic = 'force-dynamic'
+
+export default async function Home() {
+  const featuredProducts = await prisma.product.findMany({
+    where: { featured: true, active: true },
+    include: { category: true },
+    take: 4,
+    orderBy: { createdAt: 'desc' },
+  })
   return (
     <>
       {/* Hero */}
@@ -110,7 +119,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Featured Products placeholder */}
+      {/* Featured Products */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="flex items-center justify-between mb-10">
           <h2 className="text-3xl font-bold tracking-tight">Featured</h2>
@@ -119,12 +128,29 @@ export default function Home() {
           </Link>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="group">
-              <div className="aspect-square bg-neutral-100 rounded-lg mb-3 group-hover:bg-neutral-200 transition-colors" />
-              <p className="font-medium text-sm">Premium Heavyweight Tee</p>
-              <p className="text-neutral-500 text-sm">$24.00</p>
-            </div>
+          {featuredProducts.map((product) => (
+            <Link key={product.id} href={`/products/${product.slug}`} className="group">
+              <div className="aspect-square rounded-lg mb-3 overflow-hidden group-hover:shadow-md transition-all">
+                {product.images[0] ? (
+                  <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
+                ) : (
+                  <div
+                    className="w-full h-full flex flex-col items-center justify-center"
+                    style={{
+                      background: product.colorHexCodes[0]
+                        ? `linear-gradient(135deg, ${product.colorHexCodes[0]}ee, ${product.colorHexCodes[0]}88)`
+                        : 'linear-gradient(135deg, #e5e5e5, #d4d4d4)',
+                    }}
+                  >
+                    <span className="text-white/80 text-xs font-semibold uppercase tracking-widest drop-shadow-sm">
+                      {product.category?.name || 'Apparel'}
+                    </span>
+                  </div>
+                )}
+              </div>
+              <p className="font-medium text-sm group-hover:text-accent transition-colors">{product.name}</p>
+              <p className="text-neutral-500 text-sm">${product.price.toFixed(2)}</p>
+            </Link>
           ))}
         </div>
       </section>

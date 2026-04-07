@@ -62,13 +62,18 @@ export default function CollabDetailPage() {
   return (
     <>
       {/* Cover */}
-      <div className="relative aspect-[21/9] bg-neutral-900 flex items-center justify-center">
+      <div className="relative aspect-[21/9] bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800 flex items-center justify-center overflow-hidden">
         {collab.coverImage ? (
           <img src={collab.coverImage} alt={collab.brandName} className="w-full h-full object-cover opacity-60" />
-        ) : null}
+        ) : (
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-white rounded-full blur-3xl" />
+            <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-accent rounded-full blur-3xl" />
+          </div>
+        )}
         <div className="absolute inset-0 flex items-center justify-center">
-          <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight">
-            DropHaus × {collab.brandName}
+          <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight text-center px-4">
+            DropHaus &times; {collab.brandName}
           </h1>
         </div>
       </div>
@@ -92,11 +97,22 @@ export default function CollabDetailPage() {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {collab.products.map((product) => (
               <Link key={product.id} href={`/products/${product.slug}`} className="group">
-                <div className="aspect-square bg-neutral-100 rounded-lg mb-3 overflow-hidden group-hover:bg-neutral-200 transition-colors flex items-center justify-center">
+                <div className="aspect-square rounded-lg mb-3 overflow-hidden group-hover:shadow-md transition-all">
                   {product.images[0] ? (
                     <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
                   ) : (
-                    <span className="text-neutral-300 text-5xl">👕</span>
+                    <div
+                      className="w-full h-full flex items-center justify-center"
+                      style={{
+                        background: product.colorHexCodes?.[0]
+                          ? `linear-gradient(135deg, ${product.colorHexCodes[0]}ee, ${product.colorHexCodes[0]}88)`
+                          : 'linear-gradient(135deg, #e5e5e5, #d4d4d4)',
+                      }}
+                    >
+                      <span className="text-white/80 text-xs font-semibold uppercase tracking-widest drop-shadow-sm">
+                        {product.name}
+                      </span>
+                    </div>
                   )}
                 </div>
                 <h3 className="font-medium text-sm group-hover:text-accent transition-colors">{product.name}</h3>
