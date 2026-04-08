@@ -124,15 +124,17 @@ export interface AMProduct {
 
 /**
  * Fetch all products from ApparelMagic
+ * Default returns up to 100 products per API pagination defaults
  */
-export async function fetchProducts(pageSize = 100, lastId?: string): Promise<AMProduct[]> {
-  const params: Record<string, string> = {
-    page_size: String(pageSize),
-  }
-  if (lastId) params.last_id = lastId
-
-  const result = await amRequest<AMProduct[]>('products', 'GET', undefined, params)
-  return result.data || []
+export async function fetchProducts(): Promise<AMProduct[]> {
+  const result = await amRequest<AMProduct[]>('products')
+  console.log('[ApparelMagic] fetchProducts result:', JSON.stringify({
+    success: result.success,
+    error: result.error,
+    dataType: typeof result.data,
+    dataLength: Array.isArray(result.data) ? result.data.length : 'not-array',
+  }))
+  return Array.isArray(result.data) ? result.data : []
 }
 
 /**
@@ -399,7 +401,7 @@ export async function healthCheck(): Promise<{ connected: boolean; message: stri
     return { connected: false, message: 'No API token configured' }
   }
 
-  const result = await amRequest('products', 'GET', undefined, { page_size: '1' })
+  const result = await amRequest('products')
   return {
     connected: result.success,
     message: result.success ? 'Connected to ApparelMagic' : (result.error || 'Connection failed'),
