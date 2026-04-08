@@ -3,7 +3,7 @@
  *
  * ApparelMagic REST API integration for Drop Haus.
  * Endpoint: https://drophausla.app.apparelmagic.com/api/json
- * Auth: Bearer token from APM Settings > API > Tokens
+ * Auth: Token passed as query parameter (?token=xxx) from APM Settings > API > Tokens
  *
  * Integration points:
  * 1. Products → Sync catalog and inventory from APM
@@ -36,6 +36,8 @@ async function amRequest<T = unknown>(
   }
 
   const url = new URL(AM_BASE_URL)
+  // ApparelMagic uses token-based auth via query parameter
+  url.searchParams.set('token', AM_API_TOKEN)
   url.searchParams.set('resource', resource)
   if (params) {
     Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v))
@@ -45,7 +47,6 @@ async function amRequest<T = unknown>(
     const res = await fetch(url.toString(), {
       method,
       headers: {
-        'Authorization': `Basic ${Buffer.from(`${AM_API_TOKEN}:`).toString('base64')}`,
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
@@ -351,7 +352,7 @@ export async function getProductionStatus(styleId: string): Promise<{
 /**
  * Test API connectivity and token validity
  */
-export async function healthCheck(): Promise<{ connected: boolean; message: string }> {
+export async function healthCheck(): Promise<{ connected: boolean; message: string; debug?: Record<string, string> }> {
   if (!AM_API_TOKEN) {
     return { connected: false, message: 'No API token configured' }
   }
@@ -360,5 +361,10 @@ export async function healthCheck(): Promise<{ connected: boolean; message: stri
   return {
     connected: result.success,
     message: result.success ? 'Connected to ApparelMagic' : (result.error || 'Connection failed'),
+    debug: {
+      baseUrl: AM_BASE_URL,
+      tokenConfigured: AM_API_TOKEN ? 'yes' : 'no',
+      tokenPrefix: AM_API_TOKEN ? AM_API_TOKEN.substring(0, 6) + '...' : 'none',
+    },
   }
 }
