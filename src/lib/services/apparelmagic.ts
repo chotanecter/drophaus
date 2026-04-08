@@ -95,23 +95,35 @@ async function amRequest<T = unknown>(
   }
 }
 
-// ---------- Products / Styles ----------
+// ---------- Products ----------
 
 export interface AMProduct {
-  id: string
+  product_id: string
   style_number?: string
   description?: string
-  division?: string
   category?: string
+  group?: string
+  price?: string
+  cost?: string
+  margin?: string
+  retail_price?: string
+  cost_landed?: string
+  content?: string
+  vendor_id?: string
+  season?: string
+  is_inventory_tracked?: string
+  b2b_web_title?: string
+  b2b_web_description?: string
+  size_range_id?: string
+  images?: { img: string; is_catalog_image?: string; position?: string }[]
+  // Legacy aliases
+  id?: string
+  division?: string
   wholesale_price?: number
-  retail_price?: number
-  colors?: { id: string; name: string; code?: string }[]
-  sizes?: { id: string; name: string }[]
-  images?: { url: string; sort_order: number }[]
 }
 
 /**
- * Fetch all products (styles) from ApparelMagic
+ * Fetch all products from ApparelMagic
  */
 export async function fetchProducts(pageSize = 100, lastId?: string): Promise<AMProduct[]> {
   const params: Record<string, string> = {
@@ -119,7 +131,7 @@ export async function fetchProducts(pageSize = 100, lastId?: string): Promise<AM
   }
   if (lastId) params.last_id = lastId
 
-  const result = await amRequest<AMProduct[]>('styles', 'GET', undefined, params)
+  const result = await amRequest<AMProduct[]>('products', 'GET', undefined, params)
   return result.data || []
 }
 
@@ -127,7 +139,7 @@ export async function fetchProducts(pageSize = 100, lastId?: string): Promise<AM
  * Fetch a single product by APM ID
  */
 export async function fetchProduct(amProductId: string): Promise<AMProduct | null> {
-  const result = await amRequest<AMProduct>(`styles/${amProductId}`)
+  const result = await amRequest<AMProduct>(`products/${amProductId}`)
   return result.data || null
 }
 
@@ -387,13 +399,13 @@ export async function healthCheck(): Promise<{ connected: boolean; message: stri
     return { connected: false, message: 'No API token configured' }
   }
 
-  const result = await amRequest('styles', 'GET', undefined, { page_size: '1' })
+  const result = await amRequest('products', 'GET', undefined, { page_size: '1' })
   return {
     connected: result.success,
     message: result.success ? 'Connected to ApparelMagic' : (result.error || 'Connection failed'),
     debug: {
       baseUrl: AM_BASE_URL,
-      endpoint: `${AM_BASE_URL}/styles/`,
+      endpoint: `${AM_BASE_URL}/products/`,
       tokenConfigured: AM_API_TOKEN ? 'yes' : 'no',
       tokenPrefix: AM_API_TOKEN ? AM_API_TOKEN.substring(0, 6) + '...' : 'none',
     },

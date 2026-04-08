@@ -72,9 +72,10 @@ export async function POST(req: NextRequest) {
       let errors = 0
 
       for (const amProduct of amProducts) {
+        const amId = amProduct.product_id || amProduct.id || ''
         try {
           const existing = await prisma.product.findFirst({
-            where: { apparelMagicId: amProduct.id },
+            where: { apparelMagicId: amId },
           })
 
           // Get or create a default category
@@ -87,17 +88,17 @@ export async function POST(req: NextRequest) {
           const categoryId = cat.id
 
           const productData = {
-            name: amProduct.description || amProduct.style_number || `APM-${amProduct.id}`,
-            slug: (amProduct.style_number || amProduct.id).toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-            description: amProduct.description || '',
-            price: amProduct.retail_price || 0,
-            wholesalePrice: amProduct.wholesale_price || 0,
+            name: amProduct.b2b_web_title || amProduct.description || amProduct.style_number || `APM-${amId}`,
+            slug: (amProduct.style_number || amId).toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+            description: amProduct.b2b_web_description || amProduct.description || '',
+            price: parseFloat(amProduct.retail_price || amProduct.price || '0'),
+            wholesalePrice: parseFloat(amProduct.cost || '0'),
             categoryId,
-            sizes: (amProduct.sizes || []).map(s => s.name),
-            colors: (amProduct.colors || []).map(c => c.name),
-            colorHexCodes: (amProduct.colors || []).map(c => c.code || '#000000'),
-            images: (amProduct.images || []).sort((a, b) => a.sort_order - b.sort_order).map(i => i.url),
-            apparelMagicId: amProduct.id,
+            sizes: [],
+            colors: [],
+            colorHexCodes: [],
+            images: (amProduct.images || []).map(i => i.img),
+            apparelMagicId: amId,
           }
 
           if (existing) {
@@ -111,7 +112,7 @@ export async function POST(req: NextRequest) {
             imported++
           }
         } catch (err) {
-          console.error(`[ApparelMagic] Failed to import product ${amProduct.id}:`, err)
+          console.error(`[ApparelMagic] Failed to import product ${amId}:`, err)
           errors++
         }
       }
