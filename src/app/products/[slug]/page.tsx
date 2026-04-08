@@ -163,13 +163,13 @@ export default function ProductDetailPage() {
             </div>
           )}
 
-          {/* Add to Cart â Shopify Checkout */}
+          {/* Add to Cart → Shopify Checkout */}
           <button
             className="w-full bg-black text-white py-3.5 rounded-md font-semibold text-sm hover:bg-neutral-800 transition-colors mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={checkingOut}
             onClick={async () => {
               if (!product.shopifyVariantId) {
-                setToastMessage('Checkout coming soon â product sync in progress.')
+                setToastMessage('Checkout coming soon — product sync in progress.')
                 setShowToast(true)
                 setTimeout(() => setShowToast(false), 3000)
                 return
