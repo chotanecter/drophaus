@@ -126,6 +126,39 @@ export async function POST(req: NextRequest) {
       })
     }
 
+    case 'cleanup_mock_data': {
+      // Remove seed/mock products that don't have an ApparelMagic ID
+      const deletedProducts = await prisma.product.deleteMany({
+        where: { apparelMagicId: null },
+      })
+
+      // Remove seed/mock collabs (Midnight Studio, Raw Athletics)
+      const deletedCollabs = await prisma.collab.deleteMany({
+        where: {
+          slug: { in: ['midnight-studio', 'raw-athletics'] },
+        },
+      })
+
+      // Clean up orphaned categories (categories with no products)
+      const orphanedCategories = await prisma.category.findMany({
+        where: {
+          products: { none: {} },
+        },
+      })
+      const deletedCategories = await prisma.category.deleteMany({
+        where: {
+          id: { in: orphanedCategories.map(c => c.id) },
+        },
+      })
+
+      return NextResponse.json({
+        success: true,
+        deletedProducts: deletedProducts.count,
+        deletedCollabs: deletedCollabs.count,
+        deletedCategories: deletedCategories.count,
+      })
+    }
+
     default:
       return NextResponse.json({ error: 'Unknown action' }, { status: 400 })
   }
