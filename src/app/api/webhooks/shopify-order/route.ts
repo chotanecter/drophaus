@@ -7,22 +7,20 @@
  * Flow:
  * 1. Verify HMAC signature (ensures request is from Shopify)
  * 2. Parse line items from the Shopify order
- * 3. Map Shopify variant IDs â local products â ApparelMagic style IDs
+ * 3. Map Shopify variant IDs to local products to ApparelMagic style IDs
  * 4. Push order to ApparelMagic via createOrder()
  * 5. ApparelMagic decrements inventory automatically
  *
  * Required env vars:
- *   SHOPIFY_WEBHOOK_SECRET â from Shopify webhook settings
- *   APPARELMAGIC_API_URL   â APM base URL
- *   APPARELMAGIC_API_TOKEN â APM auth token
+ *   SHOPIFY_WEBHOOK_SECRET - from Shopify webhook settings
+ *   APPARELMAGIC_API_URL   - APM base URL
+ *   APPARELMAGIC_API_TOKEN - APM auth token
  */
 
 import { NextResponse } from 'next/server'
 import { createOrder } from '@/lib/services/apparelmagic'
-import { PrismaClient } from '@prisma/client'
+import prisma from '@/lib/prisma'
 import { createHmac } from 'crypto'
-
-const prisma = new PrismaClient()
 
 // ---------- HMAC Verification ----------
 
@@ -56,7 +54,7 @@ export async function POST(request: Request) {
   let order: ShopifyOrder
   try {
     order = JSON.parse(rawBody)
-  } catch {
+  } catch (_e) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
 
@@ -70,7 +68,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, synced: false, reason: 'no_variants' })
   }
 
-  // 4. Map variant IDs â local products â APM style IDs
+  // 4. Map variant IDs to local products to APM style IDs
   const products = await prisma.product.findMany({
     where: { shopifyVariantId: { in: variantIds } },
     select: {
@@ -101,7 +99,6 @@ export async function POST(request: Request) {
         quantity: item.quantity,
         price: parseFloat(item.price),
         styleId: product.apparelMagicId,
-        // Extract size/color from Shopify variant title (e.g. "M / Black")
         colorId: undefined as string | undefined,
         sizeId: undefined as string | undefined,
       }
@@ -117,7 +114,7 @@ export async function POST(request: Request) {
   try {
     const shippingAddr = order.shipping_address
     const result = await createOrder({
-      customerId: '', // DTC orders â no APM customer, use default
+      customerId: '',
       poNumber: `SHOPIFY-${order.order_number}`,
       items: amItems,
       shippingAddress: shippingAddr
