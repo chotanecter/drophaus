@@ -237,6 +237,7 @@ export async function getOrders(limit = 50): Promise<{
   fulfillment_status: string | null
   created_at: string
 }[]> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const result = await adminRequest<{ orders: any[] }>(`orders.json?limit=${limit}&status=any`)
   return result?.orders || []
 }
@@ -245,6 +246,7 @@ export async function getOrders(limit = 50): Promise<{
  * Get a single order
  */
 export async function getOrder(orderId: string) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const result = await adminRequest<{ order: any }>(`orders/${orderId}.json`)
   return result?.order || null
 }
