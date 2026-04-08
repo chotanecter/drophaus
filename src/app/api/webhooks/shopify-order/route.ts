@@ -54,7 +54,7 @@ export async function POST(request: Request) {
   let order: ShopifyOrder
   try {
     order = JSON.parse(rawBody)
-  } catch (_e) {
+  } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
 
