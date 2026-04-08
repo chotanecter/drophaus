@@ -78,14 +78,13 @@ export async function POST(req: NextRequest) {
           })
 
           // Get or create a default category
-          let categoryId: string
           const catSlug = (amProduct.category || 'uncategorized').toLowerCase().replace(/[^a-z0-9]+/g, '-')
           const cat = await prisma.category.upsert({
             where: { slug: catSlug },
             create: { name: amProduct.category || 'Uncategorized', slug: catSlug },
             update: {},
           })
-          categoryId = cat.id
+          const categoryId = cat.id
 
           const productData = {
             name: amProduct.description || amProduct.style_number || `APM-${amProduct.id}`,
