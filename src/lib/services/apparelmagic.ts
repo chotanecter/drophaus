@@ -2,8 +2,9 @@
  * ApparelMagic Integration Service
  *
  * ApparelMagic REST API integration for Drop Haus.
- * Endpoint: https://drophausla.app.apparelmagic.com/api/json
- * Auth: Token passed as query parameter (?token=xxx) from APM Settings > API > Tokens
+ * Base URL: https://drophausla.app.apparelmagic.com/api/json
+ * Auth: token + time query params (GET) or body params (POST/PUT)
+ * Docs: https://apparelmagic.zendesk.com/hc/en-us/articles/115002932654-API-Overview
  *
  * Integration points:
  * 1. Products → Sync catalog and inventory from APM
@@ -24,8 +25,16 @@ interface AMResponse<T = unknown> {
   message?: string
 }
 
+/**
+ * Make an authenticated request to the ApparelMagic API.
+ *
+ * URL format: {BASE_URL}/{endpoint}/
+ * GET requests: token & time sent as query params
+ * POST/PUT requests: token & time sent in request body
+ * All requests require a User-Agent header.
+ */
 async function amRequest<T = unknown>(
-  resource: string,
+  endpoint: string,
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' = 'GET',
   body?: Record<string, unknown>,
   params?: Record<string, string>
@@ -35,13 +44,29 @@ async function amRequest<T = unknown>(
     return { success: false, error: 'No API token configured' }
   }
 
-  const url = new URL(AM_BASE_URL)
-  // ApparelMagic uses token-based auth via query parameter
-  url.searchParams.set('token', AM_API_TOKEN)
-  url.searchParams.set('resource', resource)
-  if (params) {
-    Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v))
+  const time = String(Math.floor(Date.now() / 1000))
+
+  // Build URL: base/endpoint/ (trailing slash)
+  const baseWithSlash = AM_BASE_URL.endsWith('/') ? AM_BASE_URL : AM_BASE_URL + '/'
+  const url = new URL(`${baseWithSlash}${endpoint}/`)
+
+  if (method === 'GET') {
+    // For GET: auth + params go as query string
+    url.searchParams.set('token', AM_API_TOKEN)
+    url.searchParams.set('time', time)
+    if (params) {
+      Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v))
+    }
   }
+
+  // For POST/PUT: auth goes in request body
+  const requestBody = method !== 'GET' && (body || method === 'POST' || method === 'PUT')
+    ? JSON.stringify({
+        time,
+        token: AM_API_TOKEN,
+        ...body,
+      })
+    : undefined
 
   try {
     const res = await fetch(url.toString(), {
@@ -49,20 +74,23 @@ async function amRequest<T = unknown>(
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
+        'User-Agent': 'DropHaus/1.0 (https://drophaus-beige.vercel.app)',
       },
-      ...(body && method !== 'GET' ? { body: JSON.stringify(body) } : {}),
+      ...(requestBody ? { body: requestBody } : {}),
     })
 
     if (!res.ok) {
       const text = await res.text()
-      console.error(`[ApparelMagic] ${method} ${resource} failed:`, res.status, text)
-      return { success: false, error: `HTTP ${res.status}: ${text}` }
+      console.error(`[ApparelMagic] ${method} ${endpoint} failed:`, res.status, text.substring(0, 500))
+      return { success: false, error: `HTTP ${res.status}: ${text.substring(0, 200)}` }
     }
 
     const data = await res.json()
-    return { success: true, data: data as T }
+    // ApparelMagic wraps responses in { response: [...], meta: {...} }
+    const responseData = data.response !== undefined ? data.response : data
+    return { success: true, data: responseData as T }
   } catch (err) {
-    console.error(`[ApparelMagic] ${method} ${resource} error:`, err)
+    console.error(`[ApparelMagic] ${method} ${endpoint} error:`, err)
     return { success: false, error: String(err) }
   }
 }
@@ -85,11 +113,13 @@ export interface AMProduct {
 /**
  * Fetch all products (styles) from ApparelMagic
  */
-export async function fetchProducts(page = 1, limit = 100): Promise<AMProduct[]> {
-  const result = await amRequest<AMProduct[]>('styles', 'GET', undefined, {
-    page: String(page),
-    limit: String(limit),
-  })
+export async function fetchProducts(pageSize = 100, lastId?: string): Promise<AMProduct[]> {
+  const params: Record<string, string> = {
+    page_size: String(pageSize),
+  }
+  if (lastId) params.last_id = lastId
+
+  const result = await amRequest<AMProduct[]>('styles', 'GET', undefined, params)
   return result.data || []
 }
 
@@ -357,12 +387,13 @@ export async function healthCheck(): Promise<{ connected: boolean; message: stri
     return { connected: false, message: 'No API token configured' }
   }
 
-  const result = await amRequest('styles', 'GET', undefined, { limit: '1' })
+  const result = await amRequest('styles', 'GET', undefined, { page_size: '1' })
   return {
     connected: result.success,
     message: result.success ? 'Connected to ApparelMagic' : (result.error || 'Connection failed'),
     debug: {
       baseUrl: AM_BASE_URL,
+      endpoint: `${AM_BASE_URL}/styles/`,
       tokenConfigured: AM_API_TOKEN ? 'yes' : 'no',
       tokenPrefix: AM_API_TOKEN ? AM_API_TOKEN.substring(0, 6) + '...' : 'none',
     },
