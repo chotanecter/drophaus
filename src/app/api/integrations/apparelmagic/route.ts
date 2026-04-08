@@ -126,6 +126,18 @@ export async function POST(req: NextRequest) {
       })
     }
 
+    case 'set_featured': {
+      // Set featured flag on products by ID
+      // body.ids: string[], body.featured: boolean
+      const ids: string[] = body.ids || []
+      const featured: boolean = body.featured ?? true
+      const result = await prisma.product.updateMany({
+        where: { id: { in: ids } },
+        data: { featured },
+      })
+      return NextResponse.json({ success: true, updated: result.count })
+    }
+
     case 'cleanup_mock_data': {
       // Remove seed/mock products that don't have an ApparelMagic ID
       const deletedProducts = await prisma.product.deleteMany({
