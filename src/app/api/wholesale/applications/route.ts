@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic"
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { v4 as uuidv4 } from 'uuid'
+import { createCustomer } from '@/lib/services/apparelmagic'
 
 export async function GET(req: NextRequest) {
   const key = new URL(req.url).searchParams.get('key')
@@ -57,9 +58,29 @@ export async function PUT(req: NextRequest) {
       },
     })
 
-    // TODO: When ApparelMagic is connected, also push customer to CRM:
-    // import { syncCustomer } from '@/lib/services/apparelmagic'
-    // await syncCustomer({ businessName: application.businessName, email: application.email })
+    // Push approved customer to ApparelMagic CRM (non-blocking)
+    try {
+      const amResult = await createCustomer({
+        businessName: application.businessName,
+        contactName: application.contactName,
+        email: application.email,
+        phone: application.phone || undefined,
+        einNumber: application.einNumber || undefined,
+      })
+
+      if (amResult.customerId) {
+        // Store the APM customer ID on the application for later linking
+        await prisma.wholesaleApplication.update({
+          where: { id },
+          data: { reviewNotes: `${reviewNotes || ''}\n[APM Customer ID: ${amResult.customerId}]`.trim() },
+        })
+        console.log(`[ApparelMagic] Created customer ${amResult.customerId} for ${application.businessName}`)
+      } else {
+        console.warn(`[ApparelMagic] Failed to create customer for ${application.businessName}`)
+      }
+    } catch (err) {
+      console.error('[ApparelMagic] Customer sync error (non-blocking):', err)
+    }
 
     return NextResponse.json({
       ...application,

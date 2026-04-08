@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic"
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
+import { findCustomerByEmail } from '@/lib/services/apparelmagic'
 
 export async function GET(req: NextRequest) {
   const token = new URL(req.url).searchParams.get('token')
@@ -52,12 +53,25 @@ export async function POST(req: NextRequest) {
 
   const passwordHash = await bcrypt.hash(password, 12)
 
+  // Try to find or link ApparelMagic customer ID
+  let apparelMagicCustomerId: string | null = null
+  try {
+    const amCustomer = await findCustomerByEmail(email)
+    if (amCustomer) {
+      apparelMagicCustomerId = amCustomer.id
+      console.log(`[ApparelMagic] Linked customer ${amCustomer.id} to wholesale account for ${email}`)
+    }
+  } catch (err) {
+    console.warn('[ApparelMagic] Could not lookup customer (non-blocking):', err)
+  }
+
   const account = await prisma.wholesaleAccount.create({
     data: {
       email,
       passwordHash,
       businessName: application.businessName,
       applicationId: application.id,
+      ...(apparelMagicCustomerId ? { apparelMagicCustomerId } : {}),
     },
   })
 

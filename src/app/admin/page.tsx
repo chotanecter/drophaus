@@ -932,17 +932,38 @@ function AdminContent() {
                   <button
                     onClick={async () => {
                       setIntegrationLoading(true)
-                      const res = await fetch(`/api/integrations/apparelmagic?key=${key}&action=products`)
+                      const res = await fetch(`/api/integrations/apparelmagic?key=${key}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'import_products' }),
+                      })
                       if (res.ok) {
                         const data = await res.json()
-                        showToast(`Fetched ${data.count} products from APM`)
+                        showToast(`Imported ${data.imported} new, updated ${data.updated} products from APM${data.errors ? ` (${data.errors} errors)` : ''}`)
+                      } else {
+                        showToast('Failed to import products from APM')
                       }
                       setIntegrationLoading(false)
                     }}
                     disabled={integrationLoading}
                     className="border border-neutral-300 px-4 py-2 rounded-md text-sm font-medium hover:bg-neutral-50 disabled:opacity-50"
                   >
-                    Sync Products
+                    Import Products
+                  </button>
+                  <button
+                    onClick={async () => {
+                      setIntegrationLoading(true)
+                      const res = await fetch(`/api/integrations/apparelmagic?key=${key}&action=sync-inventory`)
+                      if (res.ok) {
+                        const data = await res.json()
+                        showToast(`Inventory sync: ${data.synced} synced, ${data.errors} errors`)
+                      }
+                      setIntegrationLoading(false)
+                    }}
+                    disabled={integrationLoading}
+                    className="border border-neutral-300 px-4 py-2 rounded-md text-sm font-medium hover:bg-neutral-50 disabled:opacity-50"
+                  >
+                    Sync Inventory
                   </button>
                 </div>
 
