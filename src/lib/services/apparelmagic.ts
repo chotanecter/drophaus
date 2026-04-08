@@ -45,7 +45,7 @@ async function amRequest<T = unknown>(
     const res = await fetch(url.toString(), {
       method,
       headers: {
-        'Authorization': `Bearer ${AM_API_TOKEN}`,
+        'Authorization': `Basic ${Buffer.from(`${AM_API_TOKEN}:`).toString('base64')}`,
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
