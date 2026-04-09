@@ -127,7 +127,6 @@ export async function syncProductToShopify(product: {
   // Build variants from size/color combinations
   const hasSizes = product.sizes && product.sizes.length > 0
   const hasColors = product.colors && product.colors.length > 0
-  const hasOptions = hasSizes || hasColors
 
   const variants = hasSizes && hasColors
     ? product.sizes.flatMap(size =>
@@ -143,7 +142,7 @@ export async function syncProductToShopify(product: {
         ? product.colors.map(color => ({ option1: color, price: String(product.price) }))
         : []
 
-  // Only include options when we have actual values — Shopify rejects empty options
+  // Only include options when we have actual values â Shopify rejects empty options
   const options = hasSizes && hasColors
     ? [{ name: 'Size', values: product.sizes }, { name: 'Color', values: product.colors }]
     : hasSizes
