@@ -2,7 +2,6 @@ export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { healthCheck, fetchShopifyProducts, syncProductToShopify, getOrders } from '@/lib/services/shopify'
 import prisma from '@/lib/prisma'
-
 // ---------- Storefront API Helper ----------
 
 const SHOPIFY_DOMAIN = process.env.SHOPIFY_STORE_DOMAIN || ''
@@ -31,7 +30,7 @@ async function fetchAllStorefrontProducts(): Promise<StorefrontProduct[]> {
   let cursor: string | null = null
 
   while (hasNextPage) {
-    const afterClause = cursor ? `, after: "${cursor}"` : ''
+    const afterClause: string = cursor ? `, after: "${cursor}"` : ''
     const query = `{
       products(first: 50${afterClause}) {
         pageInfo { hasNextPage }
