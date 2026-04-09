@@ -9,7 +9,7 @@
  */
 
 export const dynamic = 'force-dynamic'
-export const maxDuration = 60 // Allow up to 60s for full inventory sync
+export const maxDuration = 300 // Allow up to 60s for full inventory sync
 
 import { NextRequest, NextResponse } from 'next/server'
 import { runInventorySync } from '@/lib/services/inventory-sync'
