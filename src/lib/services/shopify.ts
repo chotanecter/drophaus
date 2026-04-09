@@ -271,6 +271,169 @@ export async function checkInventory(inventoryItemId: string): Promise<{
   }
 }
 
+/**
+ * Get the inventory_item_id for a product variant
+ * Shopify requires inventory_item_id (not variant_id) for inventory operations
+ */
+export async function getVariantInventoryItemId(variantId: string): Promise<string | null> {
+  const result = await adminRequest<{
+    variant: { id: number; inventory_item_id: number }
+  }>(`variants/${variantId}.json`)
+  return result?.variant?.inventory_item_id ? String(result.variant.inventory_item_id) : null
+}
+
+/**
+ * Get the primary location ID for the Shopify store
+ * Most stores have a single location; we cache after first call
+ */
+let cachedLocationId: string | null = null
+
+export async function getPrimaryLocationId(): Promise<string | null> {
+  if (cachedLocationId) return cachedLocationId
+
+  const result = await adminRequest<{
+    locations: { id: number; name: string; active: boolean }[]
+  }>('locations.json')
+
+  const primary = result?.locations?.find(l => l.active)
+  if (primary) {
+    cachedLocationId = String(primary.id)
+    return cachedLocationId
+  }
+  return null
+}
+
+/**
+ * Set the available inventory level for a specific inventory item at a location.
+ * Uses Shopify's inventory_levels/set endpoint which sets an absolute quantity.
+ */
+export async function setInventoryLevel(
+  inventoryItemId: string,
+  locationId: string,
+  available: number
+): Promise<{ success: boolean; error?: string }> {
+  const result = await adminRequest<{
+    inventory_level: { inventory_item_id: number; location_id: number; available: number }
+  }>('inventory_levels/set.json', 'POST', {
+    location_id: Number(locationId),
+    inventory_item_id: Number(inventoryItemId),
+    available: Math.max(0, Math.floor(available)),
+  })
+
+  if (result?.inventory_level) {
+    return { success: true }
+  }
+  return { success: false, error: 'Failed to set inventory level' }
+}
+
+/**
+ * Batch sync inventory from ApparelMagic data to Shopify.
+ * Takes mapped product data and pushes available quantities to Shopify.
+ *
+ * Flow:
+ * 1. Get primary Shopify location
+ * 2. For each product with both apparelMagicId and shopifyVariantId:
+ *    a. Look up inventory_item_id from Shopify variant
+ *    b. Set inventory level using ApparelMagic's "available" quantity
+ *
+ * Returns summary of sync results.
+ */
+export async function syncInventoryToShopify(
+  products: {
+    localId: string
+    name: string
+    shopifyVariantId: string
+    amAvailable: number
+  }[]
+): Promise<{
+  success: boolean
+  synced: number
+  failed: number
+  skipped: number
+  details: { name: string; shopifyVariantId: string; available: number; status: string; error?: string }[]
+}> {
+  if (!SHOPIFY_DOMAIN || !ADMIN_TOKEN) {
+    return {
+      success: false,
+      synced: 0,
+      failed: products.length,
+      skipped: 0,
+      details: [{ name: 'ALL', shopifyVariantId: '', available: 0, status: 'error', error: 'No Shopify Admin credentials' }],
+    }
+  }
+
+  const locationId = await getPrimaryLocationId()
+  if (!locationId) {
+    return {
+      success: false,
+      synced: 0,
+      failed: products.length,
+      skipped: 0,
+      details: [{ name: 'ALL', shopifyVariantId: '', available: 0, status: 'error', error: 'Could not determine Shopify location' }],
+    }
+  }
+
+  const details: { name: string; shopifyVariantId: string; available: number; status: string; error?: string }[] = []
+  let synced = 0
+  let failed = 0
+  let skipped = 0
+
+  for (const product of products) {
+    try {
+      // Get inventory_item_id from Shopify variant
+      const inventoryItemId = await getVariantInventoryItemId(product.shopifyVariantId)
+      if (!inventoryItemId) {
+        details.push({
+          name: product.name,
+          shopifyVariantId: product.shopifyVariantId,
+          available: product.amAvailable,
+          status: 'skipped',
+          error: 'Could not get inventory_item_id from variant',
+        })
+        skipped++
+        continue
+      }
+
+      // Set the inventory level on Shopify
+      const result = await setInventoryLevel(inventoryItemId, locationId, product.amAvailable)
+
+      if (result.success) {
+        details.push({
+          name: product.name,
+          shopifyVariantId: product.shopifyVariantId,
+          available: product.amAvailable,
+          status: 'synced',
+        })
+        synced++
+      } else {
+        details.push({
+          name: product.name,
+          shopifyVariantId: product.shopifyVariantId,
+          available: product.amAvailable,
+          status: 'failed',
+          error: result.error,
+        })
+        failed++
+      }
+
+      // Small delay to avoid Shopify rate limits (2 req/sec for REST)
+      await new Promise(resolve => setTimeout(resolve, 550))
+    } catch (err) {
+      details.push({
+        name: product.name,
+        shopifyVariantId: product.shopifyVariantId,
+        available: product.amAvailable,
+        status: 'failed',
+        error: String(err),
+      })
+      failed++
+    }
+  }
+
+  console.log(`[Shopify] Inventory sync complete: ${synced} synced, ${failed} failed, ${skipped} skipped`)
+  return { success: failed === 0, synced, failed, skipped, details }
+}
+
 // ---------- Health Check ----------
 
 export async function healthCheck(): Promise<{ connected: boolean; message: string; shopName?: string }> {

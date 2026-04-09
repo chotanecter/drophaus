@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { healthCheck, fetchShopifyProducts, syncProductToShopify, getOrders } from '@/lib/services/shopify'
+import { runInventorySync } from '@/lib/services/inventory-sync'
 import prisma from '@/lib/prisma'
 
 // ---------- Storefront API Helper ----------
@@ -32,7 +33,6 @@ async function fetchAllStorefrontProducts(): Promise<StorefrontProduct[]> {
 
   while (hasNextPage) {
     const afterClause: string = cursor ? `, after: "${cursor}"` : ''
-    const afterClause = cursor ? `, after: "${cursor}"` : ''
     const query = `{
       products(first: 50${afterClause}) {
         pageInfo { hasNextPage }
@@ -247,6 +247,15 @@ export async function POST(req: NextRequest) {
         matchDetails,
         unmatched,
       })
+    }
+
+    case 'sync_inventory': {
+      /**
+       * Run full inventory sync: ApparelMagic → Shopify
+       * Pulls available quantities from APM and pushes to Shopify inventory levels.
+       */
+      const syncResult = await runInventorySync()
+      return NextResponse.json(syncResult, { status: syncResult.success ? 200 : 500 })
     }
 
     case 'set_shopify_ids': {
