@@ -125,13 +125,32 @@ export async function syncProductToShopify(product: {
   shopifyProductId?: string | null
 }): Promise<{ shopifyProductId: string | null; shopifyVariantId: string | null }> {
   // Build variants from size/color combinations
-  const variants = product.sizes.flatMap(size =>
-    product.colors.map(color => ({
-      option1: size,
-      option2: color,
-      price: String(product.price),
-    }))
-  )
+  const hasSizes = product.sizes && product.sizes.length > 0
+  const hasColors = product.colors && product.colors.length > 0
+  const hasOptions = hasSizes || hasColors
+
+  const variants = hasSizes && hasColors
+    ? product.sizes.flatMap(size =>
+        product.colors.map(color => ({
+          option1: size,
+          option2: color,
+          price: String(product.price),
+        }))
+      )
+    : hasSizes
+      ? product.sizes.map(size => ({ option1: size, price: String(product.price) }))
+      : hasColors
+        ? product.colors.map(color => ({ option1: color, price: String(product.price) }))
+        : []
+
+  // Only include options when we have actual values — Shopify rejects empty options
+  const options = hasSizes && hasColors
+    ? [{ name: 'Size', values: product.sizes }, { name: 'Color', values: product.colors }]
+    : hasSizes
+      ? [{ name: 'Size', values: product.sizes }]
+      : hasColors
+        ? [{ name: 'Color', values: product.colors }]
+        : undefined
 
   const shopifyData = {
     product: {
@@ -140,10 +159,7 @@ export async function syncProductToShopify(product: {
       vendor: 'DropHaus',
       product_type: product.fabricMaterial || 'Apparel',
       tags: [product.fabricWeight, product.fabricMaterial].filter(Boolean).join(', '),
-      options: [
-        { name: 'Size', values: product.sizes },
-        { name: 'Color', values: product.colors },
-      ],
+      ...(options ? { options } : {}),
       variants: variants.length > 0 ? variants : [{ price: String(product.price) }],
     },
   }
