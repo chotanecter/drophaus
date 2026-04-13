@@ -9,6 +9,7 @@ import {
   syncInventoryToLocal,
   type AMProduct,
 } from '@/lib/services/apparelmagic'
+import { matchProductToCollab, COLLAB_BRANDS } from '@/lib/collab-mapping'
 
 /**
  * GET /api/integrations/apparelmagic?key=X&action=health|products|inventory|sync-inventory
@@ -70,6 +71,30 @@ export async function POST(req: NextRequest) {
       let imported = 0
       let updated = 0
       let errors = 0
+      let collabAssigned = 0
+
+      // Auto-create collab records for any configured brands that don't exist yet
+      for (const brand of COLLAB_BRANDS) {
+        const existing = await prisma.collab.findUnique({ where: { slug: brand.slug } })
+        if (!existing) {
+          await prisma.collab.create({
+            data: {
+              brandName: brand.brandName,
+              slug: brand.slug,
+              description: brand.description || null,
+              logo: brand.logo || null,
+              coverImage: brand.coverImage || null,
+              featured: true,
+              active: true,
+            },
+          })
+          console.log(`[ApparelMagic] Auto-created collab: ${brand.brandName}`)
+        }
+      }
+
+      // Build a slug → collabId lookup
+      const allCollabs = await prisma.collab.findMany()
+      const collabSlugMap = new Map(allCollabs.map(c => [c.slug, c.id]))
 
       for (const amProduct of amProducts) {
         const amId = amProduct.product_id || amProduct.id || ''
@@ -87,6 +112,11 @@ export async function POST(req: NextRequest) {
           })
           const categoryId = cat.id
 
+          // Check if this product belongs to a collab brand
+          const collabSlug = matchProductToCollab(amProduct)
+          const collabId = collabSlug ? collabSlugMap.get(collabSlug) || null : null
+          if (collabId) collabAssigned++
+
           const productData = {
             name: amProduct.b2b_web_title || amProduct.description || amProduct.style_number || `APM-${amId}`,
             slug: (amProduct.style_number || amId).toLowerCase().replace(/[^a-z0-9]+/g, '-'),
@@ -99,6 +129,7 @@ export async function POST(req: NextRequest) {
             colorHexCodes: [],
             images: (amProduct.images || []).map(i => i.img),
             apparelMagicId: amId,
+            collabId,
           }
 
           if (existing) {
@@ -123,6 +154,7 @@ export async function POST(req: NextRequest) {
         imported,
         updated,
         errors,
+        collabAssigned,
       })
     }
 
