@@ -125,32 +125,13 @@ export async function syncProductToShopify(product: {
   shopifyProductId?: string | null
 }): Promise<{ shopifyProductId: string | null; shopifyVariantId: string | null }> {
   // Build variants from size/color combinations
-  const hasSizes = product.sizes && product.sizes.length > 0
-  const hasColors = product.colors && product.colors.length > 0
-
-  const variants = hasSizes && hasColors
-    ? product.sizes.flatMap(size =>
-        product.colors.map(color => ({
-          option1: size,
-          option2: color,
-          price: String(product.price),
-          inventory_management: 'shopify',
-        }))
-      )
-    : hasSizes
-      ? product.sizes.map(size => ({ option1: size, price: String(product.price), inventory_management: 'shopify' }))
-      : hasColors
-        ? product.colors.map(color => ({ option1: color, price: String(product.price), inventory_management: 'shopify' }))
-        : []
-
-  // Only include options when we have actual values Ã¢ÂÂ Shopify rejects empty options
-  const options = hasSizes && hasColors
-    ? [{ name: 'Size', values: product.sizes }, { name: 'Color', values: product.colors }]
-    : hasSizes
-      ? [{ name: 'Size', values: product.sizes }]
-      : hasColors
-        ? [{ name: 'Color', values: product.colors }]
-        : undefined
+  const variants = product.sizes.flatMap(size =>
+    product.colors.map(color => ({
+      option1: size,
+      option2: color,
+      price: String(product.price),
+    }))
+  )
 
   const shopifyData = {
     product: {
@@ -159,8 +140,11 @@ export async function syncProductToShopify(product: {
       vendor: 'DropHaus',
       product_type: product.fabricMaterial || 'Apparel',
       tags: [product.fabricWeight, product.fabricMaterial].filter(Boolean).join(', '),
-      ...(options ? { options } : {}),
-      variants: variants.length > 0 ? variants : [{ price: String(product.price), inventory_management: 'shopify' }],
+      options: [
+        { name: 'Size', values: product.sizes },
+        { name: 'Color', values: product.colors },
+      ],
+      variants: variants.length > 0 ? variants : [{ price: String(product.price) }],
     },
   }
 
@@ -206,7 +190,7 @@ export async function fetchShopifyProducts(): Promise<ShopifyProduct[]> {
 export async function createCheckout(items: {
   variantId: string
   quantity: number
-}[]): Promise<{ checkoutUrl: string | null }> {
+}[]): Promise<{ checkoutUrl: string | null; error?: string; userErrors?: { field: string; message: string }[] }> {
   const lines = items.map(item => ({
     merchandiseId: `gid://shopify/ProductVariant/${item.variantId}`,
     quantity: item.quantity,
@@ -233,6 +217,23 @@ export async function createCheckout(items: {
       userErrors: { field: string; message: string }[]
     }
   }>(query, { input: { lines } })
+
+  if (!data) {
+    console.error('[Shopify] createCheckout returned null — likely missing Storefront token or scope issue')
+    return {
+      checkoutUrl: null,
+      error: `Storefront API returned null. Domain configured: ${!!SHOPIFY_DOMAIN}, Token configured: ${!!STOREFRONT_TOKEN}`,
+    }
+  }
+
+  if (data.cartCreate?.userErrors?.length) {
+    console.error('[Shopify] Cart userErrors:', data.cartCreate.userErrors)
+    return {
+      checkoutUrl: null,
+      error: 'Cart creation had user errors',
+      userErrors: data.cartCreate.userErrors,
+    }
+  }
 
   return {
     checkoutUrl: data?.cartCreate?.cart?.checkoutUrl || null,
