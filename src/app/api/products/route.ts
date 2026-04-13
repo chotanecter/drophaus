@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
   const category = searchParams.get('category')
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const where: Record<string, any> = { active: true }
+  const where: Record<string, any> = { active: true, collabId: null }
   if (category) {
     where.category = { slug: category }
   }
