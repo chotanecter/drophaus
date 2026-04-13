@@ -2,13 +2,28 @@ export const dynamic = "force-dynamic"
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url)
+  const includeProducts = searchParams.get('products') !== 'false'
+
   const collabs = await prisma.collab.findMany({
     where: { active: true },
     include: {
-      products: {
-        select: { id: true, name: true, slug: true, price: true, images: true, colorHexCodes: true, colors: true },
-      },
+      products: includeProducts ? {
+        where: { active: true },
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          price: true,
+          images: true,
+          colorHexCodes: true,
+          colors: true,
+          fabricWeight: true,
+          category: { select: { name: true, slug: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+      } : false,
     },
     orderBy: { createdAt: 'desc' },
   })
