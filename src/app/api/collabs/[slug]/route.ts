@@ -10,7 +10,19 @@ export async function GET(
     where: { slug: params.slug },
     include: {
       products: {
-        select: { id: true, name: true, slug: true, price: true, images: true, colorHexCodes: true, colors: true },
+        where: { active: true },
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          price: true,
+          images: true,
+          colorHexCodes: true,
+          colors: true,
+          fabricWeight: true,
+          category: { select: { name: true, slug: true } },
+        },
+        orderBy: { createdAt: 'desc' },
       },
     },
   })
