@@ -13,18 +13,22 @@ export async function POST(request: Request) {
       )
     }
 
-    const { checkoutUrl } = await createCheckout([
+    const result = await createCheckout([
       { variantId: String(variantId), quantity: Number(quantity) },
     ])
 
-    if (!checkoutUrl) {
+    if (!result.checkoutUrl) {
       return NextResponse.json(
-        { error: 'Failed to create checkout. Check Shopify credentials.' },
+        {
+          error: 'Failed to create checkout. Check Shopify credentials.',
+          detail: result.error,
+          userErrors: result.userErrors,
+        },
         { status: 500 }
       )
     }
 
-    return NextResponse.json({ checkoutUrl })
+    return NextResponse.json({ checkoutUrl: result.checkoutUrl })
   } catch (err) {
     console.error('[Checkout API]', err)
     return NextResponse.json(
