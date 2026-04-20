@@ -21,7 +21,7 @@ const categories = [
     images: ['/categories/sweats-1.jpg', '/categories/sweats-2.jpg', '/categories/sweats-3.jpg'],
   },
   {
-    name: 'Jackets',
+    name: 'Zip-Up',
     slug: 'jackets',
     images: ['/categories/jackets-1.jpg', '/categories/jackets-2.jpg'],
   },
