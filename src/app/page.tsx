@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import Hero from '@/components/Hero'
 import CategoryCard from '@/components/CategoryCard'
+import WhyDropHaus from '@/components/WhyDropHaus'
 
 const categories = [
   {
@@ -26,28 +27,6 @@ const categories = [
   },
 ]
 
-const features = [
-  {
-    title: 'Premium Fabrics',
-    desc: 'Heavyweight cotton, brushed fleece, and performance blends — sourced and tested for durability.',
-    icon: '🧵',
-  },
-  {
-    title: 'Built to Brand',
-    desc: 'Clean blanks ready for your labels, prints, and embroidery. No branding, no compromise.',
-    icon: '🏷️',
-  },
-  {
-    title: 'Wholesale Ready',
-    desc: 'Competitive bulk pricing with dedicated account management for verified businesses.',
-    icon: '📦',
-  },
-  {
-    title: 'Fast Fulfillment',
-    desc: 'Warehouse-stocked essentials ship within 48 hours. Custom orders on your timeline.',
-    icon: '⚡',
-  },
-]
 
 export const dynamic = 'force-dynamic'
 
@@ -83,23 +62,7 @@ export default async function Home() {
       </section>
 
       {/* Why DropHaus */}
-      <section className="bg-neutral-50 border-y border-neutral-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Why DropHaus</h2>
-            <p className="text-neutral-500 mt-2">Built different from blank to brand</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feat) => (
-              <div key={feat.title} className="text-center">
-                <div className="text-4xl mb-4">{feat.icon}</div>
-                <h3 className="font-bold text-lg mb-2">{feat.title}</h3>
-                <p className="text-neutral-500 text-sm leading-relaxed">{feat.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <WhyDropHaus />
 
       {/* Featured Products */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">

@@ -105,7 +105,7 @@ export default function Hero() {
         }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-          <div className="maw-w-[700px]">
+          <div className="max-w-[700px]">
             {/* Label */}
             <div className="flex items-center gap-3 mb-5 animate-hero-fade-in" style={{ animationDelay: '0.2s' }}>
               <div className="h-px w-[60px] bg-accent animate-hero-line-expand" />
