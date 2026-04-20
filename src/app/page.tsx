@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
+import Hero from '@/components/Hero'
 
 const categories = [
   { name: 'T-Shirts', slug: 'tees', color: 'from-neutral-900 to-neutral-700', accent: '#1A1A1A' },
@@ -43,35 +44,7 @@ export default async function Home() {
   return (
     <>
       {/* Hero */}
-      <section className="relative bg-black text-white overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-black via-neutral-900 to-neutral-800" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28 md:py-40">
-          <div className="max-w-3xl">
-            <p className="text-accent font-medium text-sm uppercase tracking-widest mb-4">Premium Blank Apparel</p>
-            <h1 className="text-5xl md:text-7xl font-black tracking-tight leading-[0.9] mb-6">
-              The Foundation<br />of Your Brand
-            </h1>
-            <p className="text-xl text-neutral-400 mb-10 max-w-xl">
-              Heavyweight blanks built for screen printing, embroidery, and private label. 
-              Quality you can feel before you even put your name on it.
-            </p>
-            <div className="flex flex-wrap gap-4">
-              <Link
-                href="/products"
-                className="inline-flex items-center bg-white text-black px-8 py-3.5 rounded-md font-semibold text-sm hover:bg-neutral-100 transition-colors"
-              >
-                Shop Collection
-              </Link>
-              <Link
-                href="/wholesale"
-                className="inline-flex items-center border border-neutral-600 text-white px-8 py-3.5 rounded-md font-semibold text-sm hover:border-white transition-colors"
-              >
-                Apply for Wholesale
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+      <Hero />
 
       {/* Categories */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
