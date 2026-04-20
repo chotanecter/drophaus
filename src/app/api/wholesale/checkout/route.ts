@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Fetch products from DB to verify wholesale prices
-    const productIds = [...new Set(items.map((i: { productId: string }) => i.productId))]
+    const productIds = Array.from(new Set(items.map((i: { productId: string }) => i.productId)))
     const products = await prisma.product.findMany({
       where: { id: { in: productIds }, active: true },
       include: { category: true },
