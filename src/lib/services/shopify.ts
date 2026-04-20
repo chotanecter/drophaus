@@ -4,11 +4,12 @@
  * Drop Haus uses Shopify for retail checkout.
  * - Storefront API: Product display and checkout creation (public)
  * - Admin API: Product/order management (server-side only)
+ * - Draft Orders: Wholesale checkout with custom pricing (B2B)
  *
  * Setup:
  * 1. Create Shopify custom app in your store's admin
  * 2. Enable Storefront API access (products, checkout, cart)
- * 3. Enable Admin API access (products, orders, inventory)
+ * 3. Enable Admin API access (products, orders, inventory, draft_orders)
  * 4. Add credentials to .env:
  *    SHOPIFY_STORE_DOMAIN=your-store.myshopify.com
  *    SHOPIFY_STOREFRONT_TOKEN=your-storefront-token
@@ -237,6 +238,124 @@ export async function createCheckout(items: {
 
   return {
     checkoutUrl: data?.cartCreate?.cart?.checkoutUrl || null,
+  }
+}
+
+// ---------- Wholesale Draft Orders (Admin API) ----------
+
+/**
+ * Create a Shopify Draft Order with custom wholesale line-item prices.
+ *
+ * Draft Orders let us set any price per line item — perfect for B2B wholesale.
+ * After creation, we get an invoice_url where the wholesaler pays via credit card
+ * on Shopify's hosted checkout.
+ *
+ * Flow:
+ * 1. Build line items with custom wholesale prices
+ * 2. Create draft order via Admin API
+ * 3. Return the invoice URL for payment
+ */
+export async function createWholesaleDraftOrder(params: {
+  items: {
+    variantId: string
+    quantity: number
+    wholesalePrice: number
+    title: string
+  }[]
+  customerEmail: string
+  businessName: string
+  note?: string
+}): Promise<{
+  success: boolean
+  invoiceUrl?: string
+  draftOrderId?: string
+  error?: string
+}> {
+  if (!SHOPIFY_DOMAIN || !ADMIN_TOKEN) {
+    return { success: false, error: 'No Shopify Admin credentials configured' }
+  }
+
+  // Build line items with custom prices
+  const line_items = params.items.map(item => ({
+    variant_id: Number(item.variantId),
+    quantity: item.quantity,
+    price: item.wholesalePrice.toFixed(2),
+    title: item.title,
+    requires_shipping: true,
+    taxable: true,
+  }))
+
+  const draftOrderData = {
+    draft_order: {
+      line_items,
+      email: params.customerEmail,
+      note: `Wholesale Order — ${params.businessName}${params.note ? `\n${params.note}` : ''}`,
+      tags: 'wholesale, b2b',
+      tax_exempt: false,
+      use_customer_default_address: true,
+    },
+  }
+
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await adminRequest<{ draft_order: any }>(
+      'draft_orders.json',
+      'POST',
+      draftOrderData
+    )
+
+    if (!result?.draft_order) {
+      return { success: false, error: 'Failed to create draft order' }
+    }
+
+    const draftOrder = result.draft_order
+    console.log(`[Shopify] Draft order created: ${draftOrder.id} for ${params.businessName}`)
+
+    return {
+      success: true,
+      invoiceUrl: draftOrder.invoice_url || null,
+      draftOrderId: String(draftOrder.id),
+    }
+  } catch (err) {
+    console.error('[Shopify] Draft order error:', err)
+    return { success: false, error: String(err) }
+  }
+}
+
+/**
+ * Send the draft order invoice email to the customer.
+ * The email contains a link to Shopify's hosted checkout with the wholesale prices.
+ */
+export async function sendDraftOrderInvoice(draftOrderId: string, params?: {
+  to?: string
+  subject?: string
+  customMessage?: string
+}): Promise<{ success: boolean; invoiceUrl?: string; error?: string }> {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await adminRequest<{ draft_order: any }>(
+      `draft_orders/${draftOrderId}/send_invoice.json`,
+      'POST',
+      {
+        draft_order_invoice: {
+          to: params?.to,
+          subject: params?.subject || 'DropHaus Wholesale Order — Invoice',
+          custom_message: params?.customMessage || 'Your wholesale order is ready for payment. Click the link below to complete your purchase.',
+        },
+      }
+    )
+
+    if (result?.draft_order) {
+      return {
+        success: true,
+        invoiceUrl: result.draft_order.invoice_url,
+      }
+    }
+
+    return { success: false, error: 'Failed to send invoice' }
+  } catch (err) {
+    console.error('[Shopify] Send invoice error:', err)
+    return { success: false, error: String(err) }
   }
 }
 
