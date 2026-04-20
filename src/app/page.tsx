@@ -1,12 +1,29 @@
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import Hero from '@/components/Hero'
+import CategoryCard from '@/components/CategoryCard'
 
 const categories = [
-  { name: 'T-Shirts', slug: 'tees', color: 'from-neutral-900 to-neutral-700', accent: '#1A1A1A' },
-  { name: 'Hoodies', slug: 'hoodies', color: 'from-stone-800 to-stone-600', accent: '#36454F' },
-  { name: 'Sweats', slug: 'sweats', color: 'from-zinc-700 to-zinc-500', accent: '#9E9E9E' },
-  { name: 'Jackets', slug: 'jackets', color: 'from-neutral-950 to-neutral-800', accent: '#1B2A4A' },
+  {
+    name: 'T-Shirts',
+    slug: 'tees',
+    images: ['/categories/tees-1.jpg', '/categories/tees-2.jpg', '/categories/tees-3.jpg'],
+  },
+  {
+    name: 'Hoodies',
+    slug: 'hoodies',
+    images: ['/categories/hoodies-1.jpg', '/categories/hoodies-2.jpg'],
+  },
+  {
+    name: 'Sweats',
+    slug: 'sweats',
+    images: ['/categories/sweats-1.jpg', '/categories/sweats-2.jpg', '/categories/sweats-3.jpg'],
+  },
+  {
+    name: 'Jackets',
+    slug: 'jackets',
+    images: ['/categories/jackets-1.jpg', '/categories/jackets-2.jpg'],
+  },
 ]
 
 const features = [
@@ -54,21 +71,13 @@ export default async function Home() {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {categories.map((cat) => (
-            <Link
+            <CategoryCard
               key={cat.slug}
-              href={`/products?category=${cat.slug}`}
-              className="group relative aspect-[3/4] rounded-lg overflow-hidden"
-            >
-              <div className={`absolute inset-0 bg-gradient-to-br ${cat.color} group-hover:scale-105 transition-transform duration-500`} />
-              <div className="absolute inset-0 flex items-end p-6">
-                <div>
-                  <h3 className="text-white text-xl font-bold">{cat.name}</h3>
-                  <p className="text-neutral-300 text-sm mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    View Collection →
-                  </p>
-                </div>
-              </div>
-            </Link>
+              name={cat.name}
+              slug={cat.slug}
+              images={cat.images}
+              interval={3500}
+            />
           ))}
         </div>
       </section>
