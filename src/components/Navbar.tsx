@@ -9,7 +9,7 @@ export default function Navbar() {
   const links = [
     { href: '/products', label: 'Products' },
     { href: '/collabs', label: 'Collabs' },
-    { href: '/wholesale', label: 'Wholesale' },
+    { href: '/wholesale/portal', label: 'Wholesale' },
     { href: '/about', label: 'About' },
     { href: '/contact', label: 'Contact' },
   ]
