@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 
-const IMAGES = ['/hero/dh1.jpg', '/hero/dh2.jpg', '/hero/dh3.jpg']
+const DESKTOP_IMAGES = ['/hero/dh1.jpg', '/hero/dh2.jpg', '/hero/dh3.jpg']
+const MOBILE_IMAGES = ['/hero/dh-mobile-1.jpg', '/hero/dh-mobile-2.jpg', '/hero/dh-mobile-3.jpg']
 const SLIDE_DURATION = 4000
 const FADE_DURATION = 1200
 
@@ -12,7 +13,16 @@ export default function Hero() {
   const [nextIndex, setNextIndex] = useState(1)
   const [phase, setPhase] = useState<'visible' | 'fading'>('visible')
   const [scrollY, setScrollY] = useState(0)
+  const [isMobile, setIsMobile] = useState(false)
   const sectionRef = useRef<HTMLElement>(null)
+
+  // Detect mobile
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
 
   // Parallax scroll
   useEffect(() => {
@@ -20,6 +30,8 @@ export default function Hero() {
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  const IMAGES = isMobile ? MOBILE_IMAGES : DESKTOP_IMAGES
 
   // Auto-advance slides
   useEffect(() => {
@@ -32,7 +44,7 @@ export default function Hero() {
       }, FADE_DURATION)
     }, SLIDE_DURATION)
     return () => clearInterval(timer)
-  }, [])
+  }, [IMAGES.length])
 
   const parallaxOffset = scrollY * 0.4
   const contentOpacity = Math.max(0, 1 - scrollY / 700)
