@@ -17,53 +17,42 @@ interface Product {
   tags: string[]
 }
 
+const categoryFilters = [
+  { label: 'All', value: '' },
+  { label: 'T-Shirts', value: 'tees' },
+  { label: 'Hoodies', value: 'hoodies' },
+  { label: 'Sweats', value: 'sweats' },
+  { label: 'Zip-Up', value: 'jackets' },
+]
+
 function ProductsContent() {
   const searchParams = useSearchParams()
+  const initialCategory = searchParams.get('category') || ''
   const initialTag = searchParams.get('tag') || ''
+  const [activeCategory, setActiveCategory] = useState(initialCategory)
   const [activeTag, setActiveTag] = useState(initialTag)
   const [products, setProducts] = useState<Product[]>([])
-  const [allTags, setAllTags] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
 
-  // Fetch all tags on mount
   useEffect(() => {
-    const fetchTags = async () => {
+    const fetchProducts = async () => {
+      setLoading(true)
       try {
-        const res = await fetch('/api/products?tags=true')
+        const params = new URLSearchParams()
+        if (activeCategory) params.set('category', activeCategory)
+        if (activeTag) params.set('tag', activeTag)
+        const qs = params.toString() ? `?${params.toString()}` : ''
+        const res = await fetch(`/api/products${qs}`)
         const data = await res.json()
-        setAllTags(data.tags || [])
-        setProducts(data.products || [])
-        setLoading(false)
+        setProducts(Array.isArray(data) ? data : data.products || [])
       } catch (err) {
         console.error('Failed to fetch products:', err)
-        setLoading(false)
       }
+      setLoading(false)
     }
-    fetchTags()
-  }, [])
+    fetchProducts()
+  }, [activeCategory, activeTag])
 
-  // Refetch when tag changes (skip initial load which already fetched)
-  useEffect(() => {
-    if (!loading) {
-      const fetchFiltered = async () => {
-        setLoading(true)
-        try {
-          const params = activeTag ? `?tag=${encodeURIComponent(activeTag)}` : ''
-          const res = await fetch(`/api/products${params}`)
-          const data = await res.json()
-          // When filtering by tag, response is an array; when not, check both formats
-          setProducts(Array.isArray(data) ? data : data.products || [])
-        } catch (err) {
-          console.error('Failed to fetch products:', err)
-        }
-        setLoading(false)
-      }
-      fetchFiltered()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTag])
-
-  // Format tag label: capitalize first letter of each word
   const formatTag = (tag: string) =>
     tag.replace(/\b\w/g, (c) => c.toUpperCase())
 
@@ -75,37 +64,27 @@ function ProductsContent() {
         <p className="text-neutral-500 mt-2">Premium blank apparel for every need</p>
       </div>
 
-      {/* Tag Filters */}
+      {/* Category Filters */}
       <div className="flex flex-wrap gap-2 mb-10">
-        <button
-          onClick={() => setActiveTag('')}
-          className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-            activeTag === ''
-              ? 'bg-black text-white'
-              : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
-          }`}
-        >
-          All
-        </button>
-        {allTags.map((tag) => (
+        {categoryFilters.map((cat) => (
           <button
-            key={tag}
-            onClick={() => setActiveTag(tag)}
+            key={cat.value}
+            onClick={() => { setActiveCategory(cat.value); setActiveTag('') }}
             className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-              activeTag === tag
+              activeCategory === cat.value && !activeTag
                 ? 'bg-black text-white'
                 : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
             }`}
           >
-            {formatTag(tag)}
+            {cat.label}
           </button>
         ))}
       </div>
 
-      {/* Active filter indicator */}
+      {/* Active tag filter indicator (when navigating from product detail page) */}
       {activeTag && (
         <div className="flex items-center gap-2 mb-6">
-          <span className="text-sm text-neutral-500">Filtered by:</span>
+          <span className="text-sm text-neutral-500">Filtered by tag:</span>
           <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-black text-white text-sm font-medium">
             {formatTag(activeTag)}
             <button
@@ -173,22 +152,6 @@ function ProductsContent() {
                   <p className="text-neutral-400 text-xs">{product.fabricWeight}</p>
                 )}
               </div>
-              {/* Tags */}
-              {product.tags && product.tags.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-2">
-                  {product.tags.slice(0, 3).map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-2 py-0.5 bg-neutral-100 text-neutral-500 text-[10px] font-medium rounded-full uppercase tracking-wide"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                  {product.tags.length > 3 && (
-                    <span className="text-[10px] text-neutral-400 self-center">+{product.tags.length - 3}</span>
-                  )}
-                </div>
-              )}
               {/* Color swatches */}
               {product.colorHexCodes.length > 0 && (
                 <div className="flex gap-1 mt-2">
