@@ -55,6 +55,7 @@ model Product {
   fabricWeight        String?        // e.g. "6.5 oz"
   fabricMaterial      String?        // e.g. "100% Cotton"
   images              String[]
+  tags                String[]       // e.g. ["heavyweight", "streetwear", "essentials"]
   featured            Boolean        @default(false)
   active              Boolean        @default(true)
   // Integration IDs

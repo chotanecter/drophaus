@@ -17,6 +17,7 @@ interface Product {
   fabricWeight: string | null
   fabricMaterial: string | null
   images: string[]
+  tags: string[]
   category: { name: string; slug: string }
   shopifyVariantId: string | null
 }
@@ -116,7 +117,22 @@ export default function ProductDetailPage() {
           <p className="text-2xl font-semibold mb-6">${product.price.toFixed(2)}</p>
 
           {product.description && (
-            <p className="text-neutral-600 leading-relaxed mb-8">{product.description}</p>
+            <p className="text-neutral-600 leading-relaxed mb-6">{product.description}</p>
+          )}
+
+          {/* Tags */}
+          {product.tags && product.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-8">
+              {product.tags.map((tag) => (
+                <Link
+                  key={tag}
+                  href={`/products?tag=${encodeURIComponent(tag)}`}
+                  className="px-3 py-1 bg-neutral-100 hover:bg-neutral-200 text-neutral-600 text-xs font-medium rounded-full uppercase tracking-wide transition-colors"
+                >
+                  {tag}
+                </Link>
+              ))}
+            </div>
           )}
 
           {/* Colors */}

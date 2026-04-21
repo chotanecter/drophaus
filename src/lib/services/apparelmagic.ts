@@ -116,10 +116,33 @@ export interface AMProduct {
   b2b_web_description?: string
   size_range_id?: string
   images?: { img: string; is_catalog_image?: string; position?: string }[]
+  tags?: string | string[]  // ApparelMagic tags — may be comma-separated string or array
   // Legacy aliases
   id?: string
   division?: string
   wholesale_price?: number
+}
+
+/**
+ * Parse tags from ApparelMagic product data.
+ * Tags can come as a comma-separated string, an array of strings,
+ * or an array of objects with a 'name' or 'tag' field.
+ */
+export function parseAMTags(raw: unknown): string[] {
+  if (!raw) return []
+  if (typeof raw === 'string') {
+    return raw.split(',').map(t => t.trim().toLowerCase()).filter(Boolean)
+  }
+  if (Array.isArray(raw)) {
+    return raw
+      .map(t => {
+        if (typeof t === 'string') return t.trim().toLowerCase()
+        if (t && typeof t === 'object') return (t.name || t.tag || '').trim().toLowerCase()
+        return ''
+      })
+      .filter(Boolean)
+  }
+  return []
 }
 
 /**

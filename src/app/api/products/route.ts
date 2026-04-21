@@ -5,11 +5,16 @@ import prisma from '@/lib/prisma'
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const category = searchParams.get('category')
+  const tag = searchParams.get('tag')
+  const includeTags = searchParams.get('tags') === 'true'
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const where: Record<string, any> = { active: true, collabId: null }
   if (category) {
     where.category = { slug: category }
+  }
+  if (tag) {
+    where.tags = { has: tag }
   }
 
   const products = await prisma.product.findMany({
@@ -17,6 +22,22 @@ export async function GET(req: NextRequest) {
     include: { category: true },
     orderBy: { createdAt: 'desc' },
   })
+
+  // If ?tags=true, also return all unique tags across active products
+  if (includeTags) {
+    const allProducts = await prisma.product.findMany({
+      where: { active: true, collabId: null },
+      select: { tags: true },
+    })
+    const tagSet = new Set<string>()
+    for (const p of allProducts) {
+      for (const t of p.tags) {
+        tagSet.add(t)
+      }
+    }
+    const allTags = Array.from(tagSet).sort()
+    return NextResponse.json({ products, tags: allTags })
+  }
 
   return NextResponse.json(products)
 }

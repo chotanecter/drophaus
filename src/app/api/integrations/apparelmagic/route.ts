@@ -7,6 +7,7 @@ import {
   fetchInventory,
   createCustomer,
   syncInventoryToLocal,
+  parseAMTags,
   type AMProduct,
 } from '@/lib/services/apparelmagic'
 import { matchProductToCollab, COLLAB_BRANDS } from '@/lib/collab-mapping'
@@ -128,6 +129,7 @@ export async function POST(req: NextRequest) {
             colors: [],
             colorHexCodes: [],
             images: (amProduct.images || []).map(i => i.img),
+            tags: parseAMTags(amProduct.tags),
             apparelMagicId: amId,
             collabId,
           }
